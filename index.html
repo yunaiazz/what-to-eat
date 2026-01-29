@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吃什么 - 情绪饮食</title>
+    <link rel="icon" href="favicon.ico?v=20260125" type="image/x-icon">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, 'PingFang SC', sans-serif;
+            background: linear-gradient(180deg, #fef9f3 0%, #fef0e3 100%);
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #2d2d2d;
+        }
+
+        .header p {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* 步骤指示器 */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: #ff6f56;
+        }
+
+        .step-dot.done {
+            background: #ff6f56;
+        }
+
+        /* 页面切换 */
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 问答卡片 */
+        .question-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .question-label {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d2d2d;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .mood-btn {
+            padding: 16px;
+            background: #fef6f0;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .mood-btn:hover {
+            background: #ffe8df;
+        }
+
+        .mood-btn.selected {
+            border-color: #ff6f56;
+            background: #fff5f2;
+        }
+
+        .mood-btn .emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .mood-btn .text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 输入框 */
+        .input-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .text-input:focus {
+            border-color: #ff9a56;
+        }
+
+        .input-hint {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 按钮 */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,111,86,0.35);
+        }
+
+        .btn-primary:disabled {
+            background: #ddd;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: #eee;
+        }
+
+        /* AI 分析中 */
+        .analyzing {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .analyzing-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .analyzing h2 {
+            font-size: 20px;
+            color: #2d2d2d;
+            margin-bottom: 12px;
+        }
+
+        .analyzing p {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 4px;
+        }
+
+        .loading-dots span {
+            width: 6px;
+            height: 6px;
+            background: #999;
+            border-radius: 50%;
+            animation: dotPulse 1.4s ease infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 推荐结果 */
+        .result-card {
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .ai-insight {
+            background: linear-gradient(135deg, #fff5f2 0%, #fef0e3 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .ai-insight-label {
+            font-size: 12px;
+            color: #ff6f56;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-insight-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 老虎机 */
+        .slot-window {
+            background: linear-gradient(180deg, #f8f4f0 0%, #fff 50%, #f8f4f0 100%);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-container {
+            height: 72px;
+            overflow: hidden;
+        }
+
+        .slot-items {
+            transition: transform 0.1s ease-out;
+        }
+
+        .slot-item {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .slot-emoji {
+            font-size: 36px;
+        }
+
+        .slot-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2d2d;
+        }
+
+        .recommendation-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .rec-tag {
+            padding: 10px 16px;
+            background: #fef6f0;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #ff6f56;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rec-tag:hover {
+            background: #ffe8df;
+        }
+
+        .rec-tag.highlight {
+            background: #ff6f56;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .rec-tag.custom {
+            background: #e8f5e9;
+            color: #4caf50;
+            position: relative;
+        }
+
+        .rec-tag .remove-btn {
+            display: none;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            line-height: 18px;
+            text-align: center;
+        }
+
+        .rec-tag.custom:hover .remove-btn {
+            display: block;
+        }
+
+        /* 添加食物输入框 */
+        .add-food-section {
+            margin-bottom: 20px;
+        }
+
+        .add-food-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-food-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .add-food-input input:focus {
+            border-color: #ff9a56;
+        }
+
+        .add-food-btn {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .add-food-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 设置模态框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 380px;
+            background: #fff;
+            border-radius: 24px;
+            padding: 28px 24px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .setting-item {
+            margin-bottom: 16px;
+        }
+
+        .setting-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .setting-input:focus {
+            border-color: #ff9a56;
+        }
+
+        /* 设置按钮 */
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* 彩带 */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: fall 3s linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .error-msg {
+            background: #fff5f5;
+            color: #e74c3c;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+    
+    <div class="app">
+        <div class="header">
+            <h1>吃什么</h1>
+            <p>AI 情绪饮食助手</p>
+        </div>
+
+        <div class="steps">
+            <div class="step-dot active" id="step1"></div>
+            <div class="step-dot" id="step2"></div>
+            <div class="step-dot" id="step3"></div>
+            <div class="step-dot" id="step4"></div>
+            <div class="step-dot" id="step5"></div>
+            <div class="step-dot" id="step6"></div>
+        </div>
+
+        <!-- 第一页：性别选择 -->
+        <div class="page active" id="page1">
+            <div class="question-card">
+                <div class="question-label">先告诉我</div>
+                <div class="question-text">你希望谁来陪你选美食？</div>
+                <div class="mood-grid">
+                    <div class="mood-btn" onclick="selectGender(this, 'female')">
+                        <div class="emoji">👧</div>
+                        <div class="text">小柔</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectGender(this, 'male')">
+                        <div class="emoji">👦</div>
+                        <div class="text">小帅</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="nextBtn0" disabled onclick="goToPersonality()">下一步</button>
+        </div>
+
+        <!-- 第二页：性格选择 -->
+        <div class="page" id="page2">
+            <div class="question-card">
+                <div class="question-label" id="personalityLabel">选择小柔的性格</div>
+                <div class="question-text" id="personalityQuestion">你喜欢什么样的小柔？</div>
+                
+                <!-- 小柔的性格选项 -->
+                <div class="mood-grid" id="femalePersonality">
+                    <div class="mood-btn" onclick="selectPersonality(this, '温柔体贴')">
+                        <div class="emoji">🥰</div>
+                        <div class="text">温柔体贴</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectPersonality(this, '活泼可爱')">
+                        <div class="emoji">😝</div>
+                        <div class="text">活泼可爱</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectPersonality(this, '高冷傲娇')">
+                        <div class="emoji">😏</div>
+                        <div class="text">高冷傲娇</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectPersonality(this, '甜美撒娇')">
+                        <div class="emoji">🥺</div>
+                        <div class="text">甜美撒娇</div>
+                    </div>
+                </div>
+                
+                <!-- 小帅的性格选项 -->
+                <div class="mood-grid" id="malePersonality" style="display:none;">
+                    <div class="mood-btn" onclick="selectPersonality(this, '霸道总裁')">
+                        <div class="emoji">😎</div>
+                        <div class="text">霸道总裁</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectPersonality(this, '阳光暖男')">
+                        <div class="emoji">😊</div>
+                        <div class="text">阳光暖男</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectPersonality(this, '高冷男神')">
+                        <div class="emoji">🤨</div>
+                        <div class="text">高冷男神</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectPersonality(this, '幽默搞笑')">
+                        <div class="emoji">😜</div>
+                        <div class="text">幽默搞笑</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="nextBtnP" disabled onclick="nextPage(3)">下一步</button>
+            <button class="btn btn-secondary" onclick="prevPage(1)">上一步</button>
+        </div>
+
+        <!-- 第三页：心情 -->
+        <div class="page" id="page3">
+            <div class="question-card">
+                <div class="question-label">问题 1/3</div>
+                <div class="question-text">此刻你的心情如何？</div>
+                <div class="mood-grid">
+                    <div class="mood-btn" onclick="selectMood(this, '开心')">
+                        <div class="emoji">😊</div>
+                        <div class="text">开心愉悦</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectMood(this, '疲惫')">
+                        <div class="emoji">😩</div>
+                        <div class="text">疲惫困倦</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectMood(this, '焦虑')">
+                        <div class="emoji">😰</div>
+                        <div class="text">焦虑紧张</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectMood(this, '低落')">
+                        <div class="emoji">😔</div>
+                        <div class="text">心情低落</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectMood(this, '平静')">
+                        <div class="emoji">😌</div>
+                        <div class="text">平静放松</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectMood(this, '兴奋')">
+                        <div class="emoji">🤩</div>
+                        <div class="text">兴奋期待</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="nextBtn1" disabled onclick="nextPage(4)">下一步</button>
+            <button class="btn btn-secondary" onclick="prevPage(2)">上一步</button>
+        </div>
+
+        <!-- 第四页：身体状态 -->
+        <div class="page" id="page4">
+            <div class="question-card">
+                <div class="question-label">问题 2/3</div>
+                <div class="question-text">你现在身体感觉如何？</div>
+                <div class="mood-grid">
+                    <div class="mood-btn" onclick="selectBody(this, '很饿')">
+                        <div class="emoji">🤤</div>
+                        <div class="text">非常饿</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectBody(this, '有点饿')">
+                        <div class="emoji">😋</div>
+                        <div class="text">有点饿</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectBody(this, '不太饿')">
+                        <div class="emoji">🙂</div>
+                        <div class="text">不太饿</div>
+                    </div>
+                    <div class="mood-btn" onclick="selectBody(this, '想吃零食')">
+                        <div class="emoji">🍿</div>
+                        <div class="text">想吃零食</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="nextBtn2" disabled onclick="nextPage(5)">下一步</button>
+            <button class="btn btn-secondary" onclick="prevPage(3)">上一步</button>
+        </div>
+
+        <!-- 第五页：偏好 -->
+        <div class="page" id="page5">
+            <div class="question-card">
+                <div class="question-label">问题 3/3</div>
+                <div class="question-text">还有什么想告诉我的吗？</div>
+            </div>
+            <div class="input-card">
+                <textarea class="text-input" id="extraInput" rows="4" placeholder="比如：今天加班很累想吃点辣的、最近在减肥、不想吃太油腻的..."></textarea>
+                <div class="input-hint">可以留空，直接点击下一步</div>
+            </div>
+            <button class="btn btn-primary" onclick="startAnalysis()">开始 AI 分析</button>
+            <button class="btn btn-secondary" onclick="prevPage(4)">上一步</button>
+        </div>
+
+        <!-- 第六页：AI分析中 -->
+        <div class="page" id="page6">
+            <div class="analyzing">
+                <div class="analyzing-icon" id="analyzingIcon">🧠</div>
+                <h2 id="analyzingTitle">AI 正在分析你的状态</h2>
+                <p>根据你的情绪为你定制推荐<span class="loading-dots"><span></span><span></span><span></span></span></p>
+            </div>
+        </div>
+
+        <!-- 第七页：结果 -->
+        <div class="page" id="page7">
+            <div class="result-card">
+                <div class="ai-insight">
+                    <div class="ai-insight-label">🤖 AI 分析</div>
+                    <div class="ai-insight-text" id="aiInsight">加载中...</div>
+                </div>
+
+                <div class="slot-window">
+                    <div class="slot-container">
+                        <div class="slot-items" id="slotItems">
+                            <div class="slot-item">
+                                <span class="slot-emoji">🎰</span>
+                                <span class="slot-text">准备抽取</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommendation-tags" id="recTags"></div>
+
+                <!-- 添加自定义食物 -->
+                <div class="add-food-section">
+                    <div class="add-food-input">
+                        <input type="text" id="customFoodInput" placeholder="添加你想吃的食物..." maxlength="20">
+                        <button class="add-food-btn" onclick="addCustomFood()">+</button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="spinBtn" onclick="spinSlot()">开始抽取</button>
+            </div>
+            <button class="btn btn-secondary" onclick="restart()">重新开始</button>
+        </div>
+    </div>
+
+    <!-- 设置模态框 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-title">API 设置</div>
+            <div class="setting-item">
+                <div class="setting-label">DeepSeek API Key</div>
+                <input type="password" class="setting-input" id="apiKeyInput" placeholder="sk-...">
+            </div>
+            <div class="setting-item">
+                <div class="setting-label">API 地址（可选）</div>
+                <input type="text" class="setting-input" id="apiBaseInput" placeholder="https://api.deepseek.com">
+            </div>
+            <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+            <button class="btn btn-secondary" onclick="closeSettings()">取消</button>
+        </div>
+    </div>
+
+    <div class="confetti" id="confetti"></div>
+
+    <script>
+        // 状态
+        let answers = {
+            gender: '',  // 'female' = 小柔, 'male' = 小帅
+            personality: '',  // 性格
+            mood: '',
+            body: '',
+            extra: ''
+        };
+        let recommendations = [];
+        let customFoods = [];  // 用户自定义的食物
+        let aiInsight = '';
+        let isSpinning = false;
+
+        // 配置
+        let config = {
+            apiKey: 'sk-1e84490f4cb542d09e6e944313ff091c',
+            apiBase: 'https://api.deepseek.com'
+        };
+
+        // 关键词到 emoji 的映射（模糊匹配）
+        const emojiKeywords = [
+            // 主食类
+            { keywords: ['火锅', '锅底'], emoji: '🍲' },
+            { keywords: ['烧烤', '烤串', 'BBQ', '撸串'], emoji: '🍖' },
+            { keywords: ['麻辣烫', '冒菜', '香锅', '干锅', '串串'], emoji: '🥘' },
+            { keywords: ['炸鸡', '鸡排', '鸡翅', '鸡腿', '鸡块', '炸'], emoji: '🍗' },
+            { keywords: ['鸡', '鸡肉', '白切鸡', '口水鸡', '辣子鸡', '黄焖鸡', '叫花鸡'], emoji: '🐔' },
+            { keywords: ['面', '拉面', '米线', '粉', '螺蛳粉', '米粉', '肠粉', '河粉', '刀削面', '炸酱面', '热干面', '担担面', '凉面', '焖面'], emoji: '🍜' },
+            { keywords: ['意面', '意大利面', '通心粉', '千层面'], emoji: '🍝' },
+            { keywords: ['饺子', '馄饨', '抄手', '云吞', '锅贴', '包子', '小笼', '生煎', '灌汤包'], emoji: '🥟' },
+            { keywords: ['粥', '稀饭', '泡饭'], emoji: '🥣' },
+            { keywords: ['饭', '米饭', '炒饭', '盖浇', '卤肉饭', '煲仔饭', '拌饭', '咖喱饭', '蛋炒饭', '扬州炒饭'], emoji: '🍚' },
+            { keywords: ['饭团', '寿司饭', '紫菜包饭'], emoji: '🍙' },
+            
+            // 肉类
+            { keywords: ['牛排', '牛肉', '牛腩', '牛腱', '肥牛', '雪花牛'], emoji: '🥩' },
+            { keywords: ['猪', '红烧肉', '东坡肉', '回锅肉', '猪蹄', '猪脚', '排骨', '糖醋排骨', '五花肉'], emoji: '🍖' },
+            { keywords: ['羊', '羊肉', '羊排', '羊蝎子', '涮羊肉', '烤全羊'], emoji: '🍖' },
+            { keywords: ['肉夹馍', '夹馍', '肉饼'], emoji: '🥙' },
+            
+            // 海鲜
+            { keywords: ['龙虾', '小龙虾', '大虾', '基围虾'], emoji: '🦞' },
+            { keywords: ['蟹', '螃蟹', '大闸蟹', '帝王蟹', '蟹黄'], emoji: '🦀' },
+            { keywords: ['虾', '白灼虾', '油焖虾', '虾仁', '虾饺'], emoji: '🦐' },
+            { keywords: ['鱼', '三文鱼', '烤鱼', '酸菜鱼', '水煮鱼', '清蒸', '鳗鱼', '鲈鱼', '鲫鱼', '金枪鱼'], emoji: '🐟' },
+            { keywords: ['海鲜', '贝', '蛤蜊', '生蚝', '牡蛎', '鲍鱼', '海参', '墨鱼', '鱿鱼', '章鱼', '八爪鱼'], emoji: '🦑' },
+            
+            // 禽类
+            { keywords: ['鸭', '烤鸭', '北京烤鸭', '盐水鸭', '酱鸭', '鸭血'], emoji: '🦆' },
+            { keywords: ['鹅', '烧鹅', '卤鹅'], emoji: '🦢' },
+            
+            // 日韩料理
+            { keywords: ['寿司', '刺身', '生鱼片', '手卷'], emoji: '🍣' },
+            { keywords: ['定食', '便当', '套餐'], emoji: '🍱' },
+            { keywords: ['烤肉', '日式烧肉', '韩式烤肉', '和牛'], emoji: '🥩' },
+            { keywords: ['泡菜', '韩式', '石锅'], emoji: '🥬' },
+            
+            // 西餐快餐
+            { keywords: ['披萨', '比萨', 'pizza'], emoji: '🍕' },
+            { keywords: ['汉堡', '堡', 'burger'], emoji: '🍔' },
+            { keywords: ['薯条', '薯', '土豆'], emoji: '🍟' },
+            { keywords: ['三明治', '帕尼尼', '潜艇堡'], emoji: '🥪' },
+            { keywords: ['热狗', '香肠'], emoji: '🌭' },
+            { keywords: ['墨西哥', 'taco', '塔可'], emoji: '🌮' },
+            { keywords: ['卷饼', '煎饼', '手抓饼', '鸡蛋灌饼'], emoji: '🌯' },
+            { keywords: ['沙拉', '轻食', '健康餐', '减脂餐', '藜麦'], emoji: '🥗' },
+            { keywords: ['牛油果', '鳄梨'], emoji: '🥑' },
+            
+            // 汤品
+            { keywords: ['汤', '煲汤', '炖汤', '靓汤', '羊肉汤', '鸡汤', '骨头汤', '排骨汤', '银耳汤'], emoji: '🍲' },
+            
+            // 蛋类豆腐
+            { keywords: ['蛋', '鸡蛋', '茶叶蛋', '卤蛋', '煎蛋', '蒸蛋', '炒蛋', '蛋包饭'], emoji: '🥚' },
+            { keywords: ['豆腐', '豆花', '麻婆豆腐', '臭豆腐'], emoji: '🧈' },
+            
+            // 小吃
+            { keywords: ['串', '烤串', '炸串', '关东煮'], emoji: '🍢' },
+            { keywords: ['春卷', '蛋卷', '卷'], emoji: '🥠' },
+            
+            // 甜品
+            { keywords: ['蛋糕', '芝士蛋糕', '提拉米苏', '慕斯', '千层', '甜点', '甜品'], emoji: '🍰' },
+            { keywords: ['冰淇淋', '雪糕', '冰激凌', '圣代', '冰沙'], emoji: '🍦' },
+            { keywords: ['布丁', '果冻', '仙草', '烧仙草'], emoji: '🍮' },
+            { keywords: ['甜甜圈', '多纳圈'], emoji: '🍩' },
+            { keywords: ['面包', '吐司', '可颂', '法棍', '贝果', '肉桂卷', '糕点'], emoji: '🥐' },
+            { keywords: ['巧克力', '可可'], emoji: '🍫' },
+            { keywords: ['饼干', '曲奇', 'cookie'], emoji: '🍪' },
+            { keywords: ['糖', '糖果', '软糖'], emoji: '🍬' },
+            { keywords: ['马卡龙', '法式', '泡芙'], emoji: '🧁' },
+            
+            // 饮品
+            { keywords: ['奶茶', '珍珠', '波霸', '芋圆', '椰果'], emoji: '🧋' },
+            { keywords: ['咖啡', '拿铁', '美式', '卡布奇诺', '摩卡', '浓缩', 'espresso'], emoji: '☕' },
+            { keywords: ['茶', '绿茶', '红茶', '花茶', '乌龙', '普洱', '铁观音', '茉莉', '抹茶'], emoji: '🍵' },
+            { keywords: ['果汁', '鲜榨', '橙汁', '西瓜汁', '柠檬水'], emoji: '🧃' },
+            { keywords: ['奶昔', '冰沙', '思慕雪'], emoji: '🥤' },
+            { keywords: ['奶', '牛奶', '酸奶', '豆浆', '豆奶'], emoji: '🥛' },
+            { keywords: ['啤酒', '冰啤', '扎啤', '精酿'], emoji: '🍺' },
+            { keywords: ['红酒', '葡萄酒', '白酒', '威士忌', '洋酒'], emoji: '🍷' },
+            { keywords: ['鸡尾酒', '调酒', 'mojito'], emoji: '🍹' },
+            
+            // 坚果零食
+            { keywords: ['坚果', '核桃', '杏仁', '腰果', '开心果', '花生', '瓜子'], emoji: '🥜' },
+            { keywords: ['薯片', '零食', '膨化'], emoji: '🍿' },
+            
+            // 水果
+            { keywords: ['水果', '果盘', '水果拼盘'], emoji: '🍇' },
+            { keywords: ['苹果'], emoji: '🍎' },
+            { keywords: ['橙', '橘', '柑'], emoji: '🍊' },
+            { keywords: ['香蕉'], emoji: '🍌' },
+            { keywords: ['西瓜'], emoji: '🍉' },
+            { keywords: ['草莓'], emoji: '🍓' },
+            { keywords: ['葡萄'], emoji: '🍇' },
+            { keywords: ['桃', '水蜜桃'], emoji: '🍑' },
+            { keywords: ['芒果'], emoji: '🥭' },
+            { keywords: ['菠萝', '凤梨'], emoji: '🍍' },
+            { keywords: ['椰子', '椰'], emoji: '🥥' },
+            
+            // 蔬菜素食
+            { keywords: ['素', '素食', '素菜', '蔬菜', '青菜', '时蔬'], emoji: '🥬' },
+            { keywords: ['玉米'], emoji: '🌽' },
+            { keywords: ['番茄', '西红柿'], emoji: '🍅' },
+            { keywords: ['辣椒', '青椒', '尖椒'], emoji: '🌶️' },
+            { keywords: ['蘑菇', '菌', '香菇', '金针菇'], emoji: '🍄' },
+            
+            // 其他
+            { keywords: ['下午茶', '英式'], emoji: '🫖' },
+            { keywords: ['早餐', '早点', '早茶'], emoji: '🍳' },
+            { keywords: ['夜宵', '宵夜', '深夜'], emoji: '🌙' },
+            { keywords: ['自助', '自助餐', 'buffet'], emoji: '🍽️' }
+        ];
+
+        function init() {
+            loadConfig();
+        }
+
+        // 选择性别（AI陪伴者）
+        function selectGender(el, gender) {
+            document.querySelectorAll('#page1 .mood-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            answers.gender = gender;
+            document.getElementById('nextBtn0').disabled = false;
+        }
+
+        // 跳转到性格选择页并显示对应选项
+        function goToPersonality() {
+            const isFemale = answers.gender === 'female';
+            document.getElementById('femalePersonality').style.display = isFemale ? 'grid' : 'none';
+            document.getElementById('malePersonality').style.display = isFemale ? 'none' : 'grid';
+            document.getElementById('personalityLabel').textContent = isFemale ? '选择小柔的性格' : '选择小帅的性格';
+            document.getElementById('personalityQuestion').textContent = isFemale ? '你喜欢什么样的小柔？' : '你喜欢什么样的小帅？';
+            nextPage(2);
+        }
+
+        // 选择性格
+        function selectPersonality(el, personality) {
+            document.querySelectorAll('#page2 .mood-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            answers.personality = personality;
+            document.getElementById('nextBtnP').disabled = false;
+        }
+
+        // 选择心情
+        function selectMood(el, mood) {
+            document.querySelectorAll('#page3 .mood-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            answers.mood = mood;
+            document.getElementById('nextBtn1').disabled = false;
+        }
+
+        // 选择身体状态
+        function selectBody(el, body) {
+            document.querySelectorAll('#page4 .mood-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            answers.body = body;
+            document.getElementById('nextBtn2').disabled = false;
+        }
+
+        // 页面切换
+        function nextPage(num) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + num).classList.add('active');
+            updateSteps(num);
+        }
+
+        function prevPage(num) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + num).classList.add('active');
+            updateSteps(num);
+        }
+
+        function updateSteps(current) {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById('step' + i);
+                dot.classList.remove('active', 'done');
+                if (i < current) dot.classList.add('done');
+                if (i === current) dot.classList.add('active');
+            }
+        }
+
+        // 开始AI分析
+        async function startAnalysis() {
+            answers.extra = document.getElementById('extraInput').value;
+            nextPage(6);
+            
+            // 更新分析页面的文案
+            const isFemale = answers.gender === 'female';
+            document.getElementById('analyzingIcon').textContent = isFemale ? '👧' : '👦';
+            document.getElementById('analyzingTitle').textContent = isFemale ? '小柔正在为你挑选美食~' : '小帅正在为你挑选美食~';
+
+            if (!config.apiKey) {
+                // 没有API Key，使用模拟数据
+                setTimeout(() => {
+                    useMockData();
+                }, 2000);
+                return;
+            }
+
+            try {
+                const response = await callDeepSeek();
+                parseAIResponse(response);
+                nextPage(7);
+            } catch (error) {
+                console.error('API Error:', error);
+                useMockData();
+            }
+        }
+
+        // 性格描述映射
+        const personalityDesc = {
+            // 小柔的性格
+            '温柔体贴': '说话温柔体贴，善解人意，总是用"呢"、"哦"、"嘛"等温柔语气词',
+            '活泼可爱': '说话活泼俏皮，爱用"哈哈"、"嘻嘻"、"呀"、"啦"等可爱语气词，像个小太阳',
+            '高冷傲娇': '表面高冷实则关心，会用"哼"、"才不是"、"随便你"等傲娇语气，但实际很在乎',
+            '甜美撒娇': '说话甜甜的，爱撒娇，用"人家"、"嘛"、"好不好"、"讨厌啦"等撒娇语气',
+            // 小帅的性格  
+            '霸道总裁': '说话霸道但宠溺，用"听我的"、"我说了算"、"乖"等语气，强势但很暖',
+            '阳光暖男': '说话温暖贴心，用"没事有我在"、"别担心"等暖心语气，像大哥哥一样照顾人',
+            '高冷男神': '话不多但很在意，偶尔冷幽默，用简短但温柔的话关心人',
+            '幽默搞笑': '说话风趣幽默，爱开玩笑，但玩笑中带着关心，让人开心'
+        };
+
+        // 调用 DeepSeek API
+        async function callDeepSeek() {
+            const isFemale = answers.gender === 'female';
+            const name = isFemale ? '小柔' : '小帅';
+            const personality = answers.personality;
+            const pDesc = personalityDesc[personality] || '';
+            
+            const prompt = `你是${name}，${isFemale ? '一个女生' : '一个男生'}，性格是${personality}。${pDesc}。像${isFemale ? '女朋友' : '男朋友'}一样关心对方。
+
+根据用户当前的状态，用你的人设和性格语气推荐适合的食物。
+
+用户状态：
+- 心情：${answers.mood}
+- 身体状态：${answers.body}
+- 补充说明：${answers.extra || '无'}
+
+请用以下JSON格式回复（不要有其他内容）：
+{
+  "insight": "用你的性格语气（${personality}），一句话关心用户并说明推荐理由（40字以内）",
+  "foods": ["食物1", "食物2", "食物3", ...]
+}
+
+要求：
+1. insight 一定要体现${personality}的性格特点
+2. 根据情绪科学推荐食物
+3. foods 只填食物名称，简短
+4. 推荐10-12个不同类型的食物`;
+
+            const res = await fetch(`${config.apiBase}/v1/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${config.apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'deepseek-chat',
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.7
+                })
+            });
+
+            if (!res.ok) throw new Error('API request failed');
+            
+            const data = await res.json();
+            return data.choices[0].message.content;
+        }
+
+        // 解析AI响应
+        function parseAIResponse(response) {
+            try {
+                // 尝试提取JSON
+                const jsonMatch = response.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const data = JSON.parse(jsonMatch[0]);
+                    aiInsight = data.insight || '根据你的状态，为你精选了以下美食';
+                    recommendations = data.foods || [];
+                }
+            } catch (e) {
+                console.error('Parse error:', e);
+                useMockData();
+                return;
+            }
+
+            renderResult();
+        }
+
+        // 使用模拟数据
+        function useMockData() {
+            const isFemale = answers.gender === 'female';
+            const personality = answers.personality;
+            
+            // 基础食物推荐
+            const baseFoods = {
+                '开心': ['火锅', '日式烧肉', '海鲜大餐', '精致西餐', '下午茶', '寿司', '烤鸭', '韩式烤肉', '意大利面', '提拉米苏', '珍珠奶茶', '法式甜点'],
+                '疲惫': ['鸡汤面', '牛肉粥', '参鸡汤', '热干面', '肉夹馍', '羊肉汤', '猪脚饭', '黄焖鸡', '卤肉饭', '馄饨', '豆浆油条', '红糖姜茶'],
+                '焦虑': ['深海鱼', '牛油果沙拉', '坚果酸奶', '香蕉奶昔', '菠菜面', '三文鱼', '藜麦饭', '蓝莓酸奶', '燕麦粥', '绿茶', '黑巧克力', '核桃露'],
+                '低落': ['芝士焗饭', '奶油意面', '红烧肉', '蛋糕甜点', '热巧克力', '炸鸡', '披萨', '冰淇淋', '布丁', '肉桂卷', '芝士蛋糕', '暖心拿铁'],
+                '平静': ['日式定食', '蔬菜沙拉', '清蒸鱼', '素食简餐', '养生粥', '豆腐料理', '荞麦面', '白灼虾', '蒸蛋', '银耳汤', '水果拼盘', '花茶'],
+                '兴奋': ['麻辣火锅', '烧烤', '小龙虾', '冒菜', '串串香', '酸菜鱼', '毛血旺', '口水鸡', '辣子鸡', '麻辣香锅', '螺蛳粉', '冰啤酒']
+            };
+
+            // 不同性格的语气模板
+            const insightTemplates = {
+                // 小柔的性格
+                '温柔体贴': {
+                    '开心': '你开心我就安心了呢，那就吃点好的犒劳自己吧～',
+                    '疲惫': '累了呀...要好好休息，吃点暖暖的补补身体哦',
+                    '焦虑': '别担心嘛，深呼吸，吃点让心情平静的食物呢',
+                    '低落': '抱抱你，不开心的时候就要对自己好一点呀',
+                    '平静': '心情平静真好呢，那就吃点清淡养生的吧',
+                    '兴奋': '哇你好开心呀！那就吃点刺激的庆祝一下吧'
+                },
+                '活泼可爱': {
+                    '开心': '哈哈太棒啦！开心就要吃好吃的呀，走走走！',
+                    '疲惫': '哎呀累了呀～快快吃点好吃的补充能量！加油！',
+                    '焦虑': '嘿嘿别紧张啦～吃点好吃的就不焦虑了！相信我！',
+                    '低落': '不许不开心哦！吃甜甜的心情就会变好啦～',
+                    '平静': '嘻嘻～那就吃点清淡的，养生养生！',
+                    '兴奋': '耶耶耶！那就吃辣的嗨起来！冲冲冲！'
+                },
+                '高冷傲娇': {
+                    '开心': '哼，难得看你这么开心，那就勉强推荐几个吧',
+                    '疲惫': '...累了就说累了嘛，我才不是担心你呢，快吃点补补',
+                    '焦虑': '切，有什么好焦虑的，吃点这些就好了，才不是为你选的',
+                    '低落': '哼，不许不开心，吃点甜的...我才没有心疼你',
+                    '平静': '还行吧，那就吃清淡点好了，对身体好...随便你',
+                    '兴奋': '这么兴奋干嘛，好吧想吃辣就吃吧，我允许了'
+                },
+                '甜美撒娇': {
+                    '开心': '宝贝心情好好呀～人家给你选了好吃的，喜欢嘛～',
+                    '疲惫': '心疼你啦～乖乖吃饭饭补充能量好不好嘛～',
+                    '焦虑': '别紧张嘛亲爱的～吃点好吃的就不怕怕了呢～',
+                    '低落': '呜呜不要不开心啦～吃甜甜的心情会变好的嘛～',
+                    '平静': '嗯嗯～那人家给你选清淡养生的好不好呀～',
+                    '兴奋': '哇好开心呀！那就吃辣辣的庆祝一下嘛～讨厌啦～'
+                },
+                // 小帅的性格
+                '霸道总裁': {
+                    '开心': '不错，心情好。今天我请客，听我的准没错',
+                    '疲惫': '累了？乖，我说吃什么就吃什么，给我好好补补',
+                    '焦虑': '别怕，有我在。吃这些，我说了你就不会焦虑',
+                    '低落': '不许不开心，我不允许。吃完这些给我笑一个',
+                    '平静': '嗯，保持这状态。吃清淡点，对身体好，听话',
+                    '兴奋': '行，今天放纵一下。想吃辣的？我带你去'
+                },
+                '阳光暖男': {
+                    '开心': '你开心我就开心，今天带你吃点好的庆祝一下～',
+                    '疲惫': '累了吧？别担心有我在，好好吃饭补充能量',
+                    '焦虑': '没事的，别担心，一切都会好的，先吃点东西放松放松',
+                    '低落': '怎么不开心了？没关系有我陪你，吃点好吃的吧',
+                    '平静': '状态不错呀，那就吃点清淡的养养生吧',
+                    '兴奋': '哈哈这么开心啊！走，今天放开吃！'
+                },
+                '高冷男神': {
+                    '开心': '嗯，心情不错。吃这些',
+                    '疲惫': '...吃点补的。别太累了',
+                    '焦虑': '放松。吃完这些会好一些',
+                    '低落': '吃点甜的。不许不开心',
+                    '平静': '挺好。吃清淡点',
+                    '兴奋': '行。想吃辣就吃吧'
+                },
+                '幽默搞笑': {
+                    '开心': '哟呵心情不错嘛！那必须整点好的，干饭人干饭魂！',
+                    '疲惫': '累成狗了吧哈哈～来来来补补能量，元气满满再出发！',
+                    '焦虑': '焦虑啥呀，天塌下来有高个顶着！先吃饱再说！',
+                    '低落': 'emo了？没事没事，吃顿好的，什么烦恼都忘掉！',
+                    '平静': '佛系青年今天想吃清淡的？安排！养生走起～',
+                    '兴奋': '这么嗨皮？那必须整点辣的助助兴！冲鸭！'
+                }
+            };
+
+            const templates = insightTemplates[personality] || insightTemplates['温柔体贴'];
+            const mood = answers.mood || '平静';
+            
+            aiInsight = templates[mood] || templates['平静'];
+            recommendations = baseFoods[mood] || baseFoods['平静'];
+            renderResult();
+            nextPage(7);
+        }
+
+        // 渲染结果
+        function renderResult() {
+            const isFemale = answers.gender === 'female';
+            const name = isFemale ? '小柔' : '小帅';
+            const labelEl = document.querySelector('.ai-insight-label');
+            labelEl.innerHTML = isFemale ? `👧 ${name}说` : `👦 ${name}说`;
+            
+            document.getElementById('aiInsight').textContent = aiInsight;
+            
+            // 清空自定义食物
+            customFoods = [];
+            
+            renderFoodTags();
+        }
+        
+        // 渲染食物标签
+        function renderFoodTags() {
+            const tagsContainer = document.getElementById('recTags');
+            const allFoods = [...recommendations, ...customFoods];
+            
+            tagsContainer.innerHTML = allFoods.map((f, idx) => {
+                const isCustom = idx >= recommendations.length;
+                if (isCustom) {
+                    return `<div class="rec-tag custom">${getEmoji(f)} ${f}<button class="remove-btn" onclick="removeCustomFood(${idx - recommendations.length})">×</button></div>`;
+                }
+                return `<div class="rec-tag">${getEmoji(f)} ${f}</div>`;
+            }).join('');
+        }
+        
+        // 添加自定义食物
+        function addCustomFood() {
+            const input = document.getElementById('customFoodInput');
+            const food = input.value.trim();
+            
+            if (food && food.length <= 20) {
+                // 检查是否已存在
+                if (!recommendations.includes(food) && !customFoods.includes(food)) {
+                    customFoods.push(food);
+                    renderFoodTags();
+                }
+                input.value = '';
+            }
+        }
+        
+        // 移除自定义食物
+        function removeCustomFood(index) {
+            customFoods.splice(index, 1);
+            renderFoodTags();
+        }
+
+        function getEmoji(food) {
+            // 模糊匹配：遍历关键词列表，找到包含任意关键词的匹配
+            for (const item of emojiKeywords) {
+                for (const keyword of item.keywords) {
+                    if (food.includes(keyword) || keyword.includes(food)) {
+                        return item.emoji;
+                    }
+                }
+            }
+            return '🍽️';
+        }
+
+        // 老虎机抽取
+        function spinSlot() {
+            const allFoods = [...recommendations, ...customFoods];
+            if (isSpinning || allFoods.length === 0) return;
+            
+            isSpinning = true;
+            const btn = document.getElementById('spinBtn');
+            const slotItems = document.getElementById('slotItems');
+            const tags = document.querySelectorAll('.rec-tag');
+            
+            btn.disabled = true;
+            btn.textContent = '抽取中...';
+            tags.forEach(t => t.classList.remove('highlight'));
+
+            // 随机结果（包含自定义食物）
+            const resultIndex = Math.floor(Math.random() * allFoods.length);
+            const result = allFoods[resultIndex];
+            
+            // 生成滚动项
+            const spins = 25;
+            let items = [];
+            for (let i = 0; i < spins; i++) {
+                const food = allFoods[i % allFoods.length];
+                items.push(`<div class="slot-item"><span class="slot-emoji">${getEmoji(food)}</span><span class="slot-text">${food}</span></div>`);
+            }
+            items.push(`<div class="slot-item"><span class="slot-emoji">${getEmoji(result)}</span><span class="slot-text">${result}</span></div>`);
+            
+            slotItems.innerHTML = items.join('');
+            slotItems.style.transition = 'none';
+            slotItems.style.transform = 'translateY(0)';
+            
+            requestAnimationFrame(() => {
+                slotItems.style.transition = 'transform 3s cubic-bezier(0.15, 0.85, 0.3, 1)';
+                slotItems.style.transform = `translateY(-${spins * 72}px)`;
+            });
+            
+            setTimeout(() => {
+                showConfetti();
+                tags[resultIndex].classList.add('highlight');
+                btn.disabled = false;
+                btn.textContent = '再抽一次';
+                isSpinning = false;
+            }, 3000);
+        }
+
+        // 重新开始
+        function restart() {
+            answers = { gender: '', personality: '', mood: '', body: '', extra: '' };
+            recommendations = [];
+            customFoods = [];
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+            document.getElementById('extraInput').value = '';
+            document.getElementById('customFoodInput').value = '';
+            document.getElementById('nextBtn0').disabled = true;
+            document.getElementById('nextBtnP').disabled = true;
+            document.getElementById('nextBtn1').disabled = true;
+            document.getElementById('nextBtn2').disabled = true;
+            nextPage(1);
+            updateSteps(1);
+        }
+
+        // 设置
+        function openSettings() {
+            document.getElementById('apiKeyInput').value = config.apiKey;
+            document.getElementById('apiBaseInput').value = config.apiBase;
+            document.getElementById('settingsModal').classList.add('show');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        function saveSettings() {
+            config.apiKey = document.getElementById('apiKeyInput').value.trim();
+            config.apiBase = document.getElementById('apiBaseInput').value.trim() || 'https://api.deepseek.com';
+            localStorage.setItem('wte-config', JSON.stringify(config));
+            closeSettings();
+        }
+
+        function loadConfig() {
+            const saved = localStorage.getItem('wte-config');
+            if (saved) {
+                config = JSON.parse(saved);
+            }
+        }
+
+        // 彩带
+        function showConfetti() {
+            const container = document.getElementById('confetti');
+            const colors = ['#ff6f56', '#ff9a56', '#ffd56b', '#56c8ff', '#56ff9a'];
+            
+            for (let i = 0; i < 40; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 0.5 + 's';
+                container.appendChild(piece);
+                setTimeout(() => piece.remove(), 4000);
+            }
+        }
+
+        document.getElementById('settingsModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closeSettings();
+        });
+
+        // 回车键添加自定义食物
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.target.id === 'customFoodInput') {
+                addCustomFood();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

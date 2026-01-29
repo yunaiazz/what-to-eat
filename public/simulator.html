@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App 预览 - 吃什么</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .preview-container {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+        }
+
+        /* iPhone 外壳 */
+        .iphone-frame {
+            position: relative;
+            width: 290px;
+            height: 590px;
+            background: #1a1a1a;
+            border-radius: 52px;
+            padding: 10px;
+            box-shadow: 
+                0 0 0 1px #333,
+                0 0 0 4px #1a1a1a,
+                0 0 0 5px #333,
+                0 30px 50px rgba(0,0,0,0.5);
+        }
+
+        /* 侧边按钮 */
+        .iphone-frame::before {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 100px;
+            width: 3px;
+            height: 70px;
+            background: #333;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .volume-buttons {
+            position: absolute;
+            left: -3px;
+            top: 90px;
+        }
+
+        .volume-buttons::before {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 25px;
+            background: #333;
+            border-radius: 2px 0 0 2px;
+            top: 0;
+        }
+
+        .volume-buttons::after {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 50px;
+            background: #333;
+            border-radius: 2px 0 0 2px;
+            top: 35px;
+        }
+
+        .silent-switch {
+            position: absolute;
+            left: -3px;
+            top: 55px;
+            width: 3px;
+            height: 20px;
+            background: #333;
+            border-radius: 2px 0 0 2px;
+        }
+
+        /* 屏幕区域 */
+        .screen-wrapper {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 44px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 动态岛 */
+        .dynamic-island {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 115px;
+            height: 32px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 14px;
+            gap: 8px;
+        }
+
+        .front-camera {
+            width: 8px;
+            height: 8px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            box-shadow: inset 0 0 2px rgba(50, 50, 100, 0.5);
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            position: absolute;
+            top: 14px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .status-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .status-icons {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .signal-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 1px;
+            height: 10px;
+        }
+
+        .signal-bar {
+            width: 3px;
+            background: #000;
+            border-radius: 1px;
+        }
+
+        .signal-bar:nth-child(1) { height: 3px; }
+        .signal-bar:nth-child(2) { height: 5px; }
+        .signal-bar:nth-child(3) { height: 7px; }
+        .signal-bar:nth-child(4) { height: 10px; }
+
+        .wifi-icon {
+            font-size: 12px;
+            color: #000;
+        }
+
+        .battery {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .battery-body {
+            width: 22px;
+            height: 10px;
+            border: 1.5px solid #000;
+            border-radius: 3px;
+            padding: 1px;
+            position: relative;
+        }
+
+        .battery-body::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 5px;
+            background: #000;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .battery-level {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 1px;
+        }
+
+        /* App 内容 */
+        .app-content {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 44px;
+        }
+
+        /* 底部 Home 指示器 */
+        .home-indicator {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            z-index: 100;
+        }
+
+        /* 右侧控制面板 */
+        .control-panel {
+            color: #fff;
+            width: 220px;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .panel-subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 32px;
+        }
+
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .device-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .device-option:hover {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+
+        .device-option.active {
+            background: #1a1a1a;
+            border-color: #ff6f56;
+        }
+
+        .device-icon {
+            font-size: 24px;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .device-size {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .device-check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: transparent;
+        }
+
+        .device-option.active .device-check {
+            background: #ff6f56;
+            border-color: #ff6f56;
+            color: #fff;
+        }
+
+        .qr-section {
+            padding: 16px;
+            background: #111;
+            border-radius: 12px;
+            border: 1px solid #222;
+        }
+
+        .qr-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .qr-url {
+            font-size: 12px;
+            color: #888;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .tip-box {
+            margin-top: 24px;
+            padding: 12px;
+            background: rgba(255, 111, 86, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 111, 86, 0.2);
+        }
+
+        .tip-box p {
+            font-size: 11px;
+            color: #ff9a56;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="iphone-frame">
+            <div class="volume-buttons"></div>
+            <div class="silent-switch"></div>
+            
+            <div class="screen-wrapper">
+                <div class="dynamic-island">
+                    <div class="front-camera"></div>
+                </div>
+                
+                <div class="status-bar">
+                    <div class="status-time">9:41</div>
+                    <div class="status-icons">
+                        <div class="signal-bars">
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                            <div class="signal-bar"></div>
+                        </div>
+                        <span class="wifi-icon">📶</span>
+                        <div class="battery">
+                            <div class="battery-body">
+                                <div class="battery-level"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <iframe src="index.html" class="app-content" id="appFrame"></iframe>
+                
+                <div class="home-indicator"></div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="panel-title">设备预览</div>
+            <div class="panel-subtitle">选择设备查看 App 效果</div>
+
+            <div class="device-list">
+                <div class="device-option active" onclick="selectDevice(this)">
+                    <span class="device-icon">📱</span>
+                    <div class="device-info">
+                        <div class="device-name">iPhone 15 Pro</div>
+                        <div class="device-size">393 × 852 pt</div>
+                    </div>
+                    <div class="device-check">✓</div>
+                </div>
+                <div class="device-option" onclick="selectDevice(this)">
+                    <span class="device-icon">📱</span>
+                    <div class="device-info">
+                        <div class="device-name">iPhone 15</div>
+                        <div class="device-size">390 × 844 pt</div>
+                    </div>
+                    <div class="device-check">✓</div>
+                </div>
+                <div class="device-option" onclick="selectDevice(this)">
+                    <span class="device-icon">📱</span>
+                    <div class="device-info">
+                        <div class="device-name">iPhone SE</div>
+                        <div class="device-size">375 × 667 pt</div>
+                    </div>
+                    <div class="device-check">✓</div>
+                </div>
+            </div>
+
+            <div class="qr-section">
+                <div class="qr-title">📱 手机扫码预览</div>
+                <div class="qr-url">http://134.122.194.145:8888/</div>
+            </div>
+
+            <div class="tip-box">
+                <p>💡 建议用真机访问上方链接查看实际效果，模拟器仅供参考。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectDevice(el) {
+            document.querySelectorAll('.device-option').forEach(d => d.classList.remove('active'));
+            el.classList.add('active');
+        }
+    </script>
+</body>
+</html>
