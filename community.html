@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script>
+        // 版本号 - 每次更新时修改此值
+        var APP_VERSION = '20260130_v11';
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var urlVersion = params.get('v');
+            if (urlVersion !== APP_VERSION) {
+                // 保留其他参数，只更新版本号
+                params.set('v', APP_VERSION);
+                var newUrl = window.location.pathname + '?' + params.toString();
+                if (window.location.hash) newUrl += window.location.hash;
+                window.location.replace(newUrl);
+            }
+        })();
+    </script>
+    <title>肚肚社区 - 吃什么</title>
+    <link rel="icon" href="favicon.ico?v=20260125" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+        // 标记钱包模块是否加载成功
+        window.walletReady = false;
+        window.walletError = null;
+    </script>
+    <script type="module">
+        // Web3Modal + WalletConnect v2
+        try {
+            const { createWeb3Modal, defaultConfig } = await import('https://unpkg.com/@web3modal/ethers@4.0.5/dist/esm/index.js');
+            
+            const projectId = 'b5541877c9c982217e5cdfe40b8fef46';
+            
+            const mainnet = {
+                chainId: 1,
+                name: 'Ethereum',
+                currency: 'ETH',
+                explorerUrl: 'https://etherscan.io',
+                rpcUrl: 'https://eth.llamarpc.com'
+            };
+            
+            const bsc = {
+                chainId: 56,
+                name: 'BNB Smart Chain',
+                currency: 'BNB',
+                explorerUrl: 'https://bscscan.com',
+                rpcUrl: 'https://bsc-dataseed.binance.org'
+            };
+            
+            const polygon = {
+                chainId: 137,
+                name: 'Polygon',
+                currency: 'MATIC',
+                explorerUrl: 'https://polygonscan.com',
+                rpcUrl: 'https://polygon-rpc.com'
+            };
+            
+            const metadata = {
+                name: '吃什么社区',
+                description: 'AI 情绪饮食助手 - 美食分享社区',
+                url: 'https://www.wooodudu.com',
+                icons: ['https://www.wooodudu.com/favicon.ico']
+            };
+            
+            const ethersConfig = defaultConfig({ metadata });
+            
+            window.web3Modal = createWeb3Modal({
+                ethersConfig,
+                chains: [bsc, mainnet, polygon],
+                defaultChain: bsc,
+                projectId,
+                enableAnalytics: false,
+                themeMode: 'light',
+                themeVariables: {
+                    '--w3m-accent': '#ff6f56'
+                }
+            });
+            
+            window.walletReady = true;
+            console.log('Web3Modal 加载成功');
+        } catch (err) {
+            console.error('Web3Modal 加载失败:', err);
+            window.walletError = err.message || '钱包组件加载失败';
+            window.walletReady = false;
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, 'PingFang SC', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+            background: linear-gradient(180deg, #fef9f3 0%, #fef0e3 100%);
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(254, 249, 243, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #fff;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2d2d;
+        }
+
+        /* 钱包连接按钮 */
+        .wallet-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(255,111,86,0.25);
+        }
+
+        .wallet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255,111,86,0.35);
+        }
+
+        .wallet-btn.connected {
+            background: #fff;
+            color: #2d2d2d;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .wallet-btn .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* 帖子列表 */
+        .posts-container {
+            padding: 20px;
+        }
+
+        .post-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #f5f5f5;
+        }
+
+        .post-user-info {
+            flex: 1;
+        }
+
+        .post-username {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 2px;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+
+        .post-food {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #fff8f5 0%, #fef3ed 100%);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 111, 86, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-food::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(255,154,86,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .post-food-emoji {
+            font-size: 28px;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+            z-index: 1;
+        }
+
+        .post-food-info {
+            flex: 1;
+            z-index: 1;
+        }
+
+        .post-food-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e85d45;
+            margin-bottom: 2px;
+        }
+
+        .post-mood {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(255,111,86,0.12);
+            border-radius: 12px;
+            font-size: 12px;
+            color: #ff7a5c;
+            font-weight: 500;
+        }
+
+        .post-content {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f5f5f5;
+        }
+
+        .action-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #fafafa;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+
+        .action-btn.liked {
+            color: #ff6f56;
+            background: #fff5f3;
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+
+        .action-btn.liked svg {
+            fill: #ff6f56;
+            stroke: #ff6f56;
+        }
+
+        /* 评论区 */
+        .comments-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f0f0f0;
+        }
+
+        .comment-body {
+            flex: 1;
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .comment-username {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .comment-text {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .comment-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .comment-input-wrap {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+            background: #fafafa;
+        }
+
+        .comment-input:focus {
+            border-color: #ff9a56;
+            background: #fff;
+        }
+
+        .comment-submit {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .comment-submit:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 28px;
+            padding: 32px 28px;
+            animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #1a1a2e;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-close {
+            width: 100%;
+            padding: 16px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #eee;
+        }
+
+        /* 用户资料弹窗 */
+        .profile-modal .profile-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .profile-avatar-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #ff6f56;
+            box-shadow: 0 8px 24px rgba(255,111,86,0.3);
+        }
+
+        .change-avatar-btn {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-wallet {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .profile-field {
+            margin-bottom: 16px;
+        }
+
+        .profile-field label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .profile-field input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .profile-field input:focus {
+            border-color: #ff9a56;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 14px;
+            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-logout {
+            padding: 14px 20px;
+            background: #fff5f5;
+            color: #e74c3c;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 发帖弹窗 */
+        .share-modal .share-food {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #fff5f2 0%, #fef0e3 100%);
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .share-food-emoji {
+            font-size: 40px;
+        }
+
+        .share-food-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ff6f56;
+        }
+
+        .share-textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            min-height: 100px;
+        }
+
+        .share-textarea:focus {
+            border-color: #ff9a56;
+        }
+
+        .share-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* 加载更多 */
+        .load-more {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .load-more-btn {
+            padding: 12px 32px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .load-more-btn:hover {
+            background: #eee;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            border-radius: 24px;
+            font-size: 14px;
+            z-index: 300;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 头像选择器 */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .avatar-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .avatar-option:hover {
+            border-color: #ffb89a;
+        }
+
+        .avatar-option.selected {
+            border-color: #ff6f56;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-left">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h1>肚肚社区</h1>
+            </div>
+            <button class="wallet-btn" id="walletBtn" onclick="showWalletModal()">
+                连接钱包
+            </button>
+        </header>
+
+        <div class="empty-state" id="emptyState">
+            <div class="icon">🍽️</div>
+            <h3>还没有人分享</h3>
+            <p>成为第一个分享美食的人吧！</p>
+        </div>
+        <div class="posts-container" id="postsContainer"></div>
+
+        <div class="load-more" id="loadMore" style="display:none;">
+            <button class="load-more-btn" onclick="loadMorePosts()">加载更多</button>
+        </div>
+    </div>
+
+    <!-- 钱包选择弹窗已移除，使用 Web3Modal 原生 UI -->
+
+    <!-- 用户资料弹窗 -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal profile-modal">
+            <div class="profile-header">
+                <div class="profile-avatar-wrap">
+                    <img class="profile-avatar" id="profileAvatar" src="">
+                    <button class="change-avatar-btn" onclick="showAvatarPicker()">✎</button>
+                </div>
+                <div class="profile-wallet" id="profileWallet"></div>
+            </div>
+            
+            <div class="profile-field">
+                <label>昵称</label>
+                <input type="text" id="profileUsername" maxlength="20" placeholder="输入你的昵称">
+            </div>
+            
+            <div id="avatarPicker" style="display:none;">
+                <label style="font-size:13px;color:#666;">选择新头像</label>
+                <div class="avatar-grid" id="avatarGrid"></div>
+            </div>
+            
+            <div class="profile-actions">
+                <button class="btn-save" onclick="saveProfile()">保存</button>
+                <button class="btn-logout" onclick="logout()">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享弹窗 -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal share-modal">
+            <div class="modal-title">分享美食</div>
+            
+            <div class="share-food" id="shareFood">
+                <span class="share-food-emoji" id="shareFoodEmoji">🍽️</span>
+                <span class="share-food-name" id="shareFoodName">美食名称</span>
+            </div>
+            
+            <textarea class="share-textarea" id="shareContent" placeholder="分享你的用餐感受...（可选）"></textarea>
+            <div class="share-hint">说说这道美食怎么样？</div>
+            
+            <button class="btn-save" onclick="submitPost()" style="width:100%;">发布</button>
+            <button class="modal-close" onclick="closeShareModal()">取消</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // API 配置
+        const API_BASE = '/api';
+        
+        // 状态
+        let currentUser = null;
+        let walletAddress = null;
+        let provider = null;
+        let posts = [];
+        let currentPage = 1;
+        let hasMore = true;
+        let pendingShare = null; // 待分享的食物信息
+
+        // 从 URL 获取分享信息
+        function checkPendingShare() {
+            const params = new URLSearchParams(window.location.search);
+            const food = params.get('food');
+            const emoji = params.get('emoji');
+            const mood = params.get('mood');
+            
+            if (food) {
+                pendingShare = {
+                    food_name: decodeURIComponent(food),
+                    food_emoji: emoji ? decodeURIComponent(emoji) : '🍽️',
+                    mood: mood ? decodeURIComponent(mood) : null
+                };
+                
+                // 如果已登录，直接显示分享弹窗
+                if (currentUser) {
+                    showShareModal();
+                } else {
+                    // 未登录，自动弹出钱包连接
+                    setTimeout(() => {
+                        showToast('请先连接钱包后分享');
+                        showWalletModal();
+                    }, 500);
+                }
+            }
+        }
+
+        // ========== 钱包连接 (Web3Modal) ==========
+        
+        async function showWalletModal() {
+            if (currentUser) {
+                showProfileModal();
+                return;
+            }
+            
+            // 如果 Web3Modal 加载失败，尝试直接使用 MetaMask
+            if (window.walletError || (!window.web3Modal && !window.walletReady)) {
+                if (window.ethereum) {
+                    // 后备方案：直接调用 MetaMask
+                    try {
+                        showToast('正在连接钱包...');
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        if (accounts && accounts.length > 0) {
+                            walletAddress = accounts[0];
+                            provider = new ethers.providers.Web3Provider(window.ethereum);
+                            await authWithWallet(walletAddress);
+                        }
+                    } catch (err) {
+                        console.error('MetaMask 连接失败:', err);
+                        showToast('连接失败，请安装钱包或刷新重试');
+                    }
+                } else {
+                    showToast('请安装 MetaMask 等钱包扩展');
+                }
+                return;
+            }
+            
+            // 使用 Web3Modal 打开钱包选择
+            if (window.web3Modal) {
+                window.web3Modal.open();
+            } else {
+                // 等待加载
+                showToast('钱包组件加载中...');
+                let attempts = 0;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (window.web3Modal) {
+                        clearInterval(checkInterval);
+                        window.web3Modal.open();
+                    } else if (attempts >= 10 || window.walletError) {
+                        clearInterval(checkInterval);
+                        // 加载超时，使用后备方案
+                        if (window.ethereum) {
+                            showToast('使用 MetaMask 连接...');
+                            window.ethereum.request({ method: 'eth_requestAccounts' })
+                                .then(accounts => {
+                                    if (accounts && accounts.length > 0) {
+                                        walletAddress = accounts[0];
+                                        provider = new ethers.providers.Web3Provider(window.ethereum);
+                                        authWithWallet(walletAddress);
+                                    }
+                                })
+                                .catch(() => showToast('连接失败，请刷新重试'));
+                        } else {
+                            showToast('加载失败，请刷新页面重试');
+                        }
+                    }
+                }, 500);
+            }
+        }
+
+        // 监听 Web3Modal 连接状态
+        function setupWeb3ModalListeners() {
+            if (!window.web3Modal) {
+                setTimeout(setupWeb3ModalListeners, 500);
+                return;
+            }
+            
+            // 监听连接
+            window.web3Modal.subscribeProvider(async ({ address, isConnected }) => {
+                if (isConnected && address) {
+                    walletAddress = address;
+                    await authWithWallet(address);
+                } else if (!isConnected && currentUser) {
+                    logout();
+                }
+            });
+        }
+        
+        // 页面加载后设置监听
+        setTimeout(setupWeb3ModalListeners, 1000);
+
+        async function authWithWallet(address) {
+            try {
+                const res = await fetch(`${API_BASE}/auth/wallet`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wallet_address: address })
+                });
+                
+                if (!res.ok) throw new Error('认证失败');
+                
+                currentUser = await res.json();
+                localStorage.setItem('wallet_address', address);
+                updateWalletUI();
+                loadPosts();
+                
+                // 如果有待分享的食物，显示分享弹窗
+                if (pendingShare) {
+                    showShareModal();
+                }
+            } catch (error) {
+                console.error('认证失败:', error);
+                showToast('认证失败，请重试');
+            }
+        }
+
+        function updateWalletUI() {
+            const btn = document.getElementById('walletBtn');
+            if (currentUser) {
+                btn.classList.add('connected');
+                btn.innerHTML = `
+                    <img class="avatar" src="${currentUser.avatar}" alt="">
+                    ${currentUser.username}
+                `;
+            } else {
+                btn.classList.remove('connected');
+                btn.innerHTML = '连接钱包';
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            walletAddress = null;
+            provider = null;
+            localStorage.removeItem('wallet_address');
+            updateWalletUI();
+            closeProfileModal();
+            showToast('已退出登录');
+        }
+
+        // ========== 用户资料 ==========
+
+        function showProfileModal() {
+            if (!currentUser) return;
+            
+            document.getElementById('profileAvatar').src = currentUser.avatar;
+            document.getElementById('profileWallet').textContent = 
+                walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+            document.getElementById('profileUsername').value = currentUser.username;
+            document.getElementById('avatarPicker').style.display = 'none';
+            document.getElementById('profileModal').classList.add('show');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('show');
+        }
+
+        function showAvatarPicker() {
+            const grid = document.getElementById('avatarGrid');
+            const styles = ['adventurer', 'avataaars', 'bottts', 'fun-emoji', 'lorelei', 'micah', 'miniavs', 'pixel-art'];
+            
+            grid.innerHTML = '';
+            styles.forEach((style, i) => {
+                for (let j = 0; j < 4; j++) {
+                    const seed = `${walletAddress}-${style}-${j}`;
+                    const url = `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+                    const img = document.createElement('img');
+                    img.className = 'avatar-option';
+                    img.src = url;
+                    img.onclick = () => selectAvatar(url, img);
+                    grid.appendChild(img);
+                }
+            });
+            
+            document.getElementById('avatarPicker').style.display = 'block';
+        }
+
+        function selectAvatar(url, el) {
+            document.querySelectorAll('.avatar-option').forEach(a => a.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('profileAvatar').src = url;
+        }
+
+        async function saveProfile() {
+            const username = document.getElementById('profileUsername').value.trim();
+            const avatar = document.getElementById('profileAvatar').src;
+            
+            if (!username) {
+                showToast('请输入昵称');
+                return;
+            }
+            
+            if (!walletAddress) {
+                showToast('钱包未连接');
+                return;
+            }
+            
+            try {
+                console.log('saveProfile - walletAddress:', walletAddress);
+                console.log('saveProfile - data:', { username, avatar });
+                
+                const res = await fetch(`${API_BASE}/user/${walletAddress}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, avatar })
+                });
+                
+                console.log('saveProfile - response status:', res.status);
+                const responseText = await res.text();
+                console.log('saveProfile - response:', responseText);
+                
+                if (!res.ok) throw new Error('保存失败: ' + responseText);
+                
+                currentUser = JSON.parse(responseText);
+                updateWalletUI();
+                closeProfileModal();
+                showToast('保存成功');
+                loadPosts(); // 刷新帖子以更新用户名
+            } catch (error) {
+                console.error('保存失败:', error);
+                showToast('保存失败: ' + error.message);
+            }
+        }
+
+        // ========== 帖子 ==========
+
+        async function loadPosts(reset = true) {
+            if (reset) {
+                currentPage = 1;
+                posts = [];
+            }
+            
+            try {
+                let url = `${API_BASE}/posts?page=${currentPage}&limit=20`;
+                if (walletAddress) {
+                    url += `&wallet_address=${encodeURIComponent(walletAddress)}`;
+                }
+                console.log('Loading posts from:', url);
+                const res = await fetch(url);
+                console.log('Response status:', res.status);
+                if (!res.ok) throw new Error('加载失败: ' + res.status);
+                
+                const data = await res.json();
+                
+                if (reset) {
+                    posts = data.posts;
+                } else {
+                    posts = [...posts, ...data.posts];
+                }
+                
+                hasMore = data.has_more;
+                renderPosts();
+            } catch (error) {
+                console.error('加载帖子失败:', error);
+                showToast('加载失败，请重试');
+            }
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            const emptyState = document.getElementById('emptyState');
+            const loadMoreEl = document.getElementById('loadMore');
+            
+            if (posts.length === 0) {
+                emptyState.style.display = 'block';
+                loadMoreEl.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            loadMoreEl.style.display = hasMore ? 'block' : 'none';
+            
+            container.innerHTML = posts.map(post => `
+                <div class="post-card" data-id="${post.id}">
+                    <div class="post-header">
+                        <img class="post-avatar" src="${post.user.avatar}" alt="">
+                        <div class="post-user-info">
+                            <div class="post-username">${escapeHtml(post.user.username)}</div>
+                            <div class="post-time">${formatTime(post.created_at)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="post-food">
+                        <span class="post-food-emoji">${post.food_emoji}</span>
+                        <div class="post-food-info">
+                            <div class="post-food-name">${escapeHtml(post.food_name)}</div>
+                            ${post.mood ? `<span class="post-mood">${escapeHtml(post.mood)}</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${post.content ? `<div class="post-content">${escapeHtml(post.content)}</div>` : ''}
+                    
+                    <div class="post-actions">
+                        <button class="action-btn ${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${post.liked ? 'currentColor' : 'none'}" stroke="currentColor">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                            </svg>
+                            <span>${post.likes || ''}</span>
+                        </button>
+                        <button class="action-btn" onclick="toggleComments(${post.id})">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                            </svg>
+                            <span>${post.comment_count || ''}</span>
+                        </button>
+                    </div>
+                    
+                    <div class="comments-section" id="comments-${post.id}" style="display:none;">
+                        <div class="comments-list" id="comments-list-${post.id}"></div>
+                        <div class="comment-input-wrap">
+                            <input class="comment-input" id="comment-input-${post.id}" 
+                                   placeholder="写评论..." maxlength="200">
+                            <button class="comment-submit" onclick="submitComment(${post.id})">发送</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadMorePosts() {
+            currentPage++;
+            await loadPosts(false);
+        }
+
+        let likingPosts = new Set(); // 防止重复点击
+        
+        async function toggleLike(postId) {
+            console.log('toggleLike called:', postId, 'currentUser:', !!currentUser, 'walletAddress:', walletAddress);
+            
+            if (!currentUser) {
+                showToast('请先连接钱包');
+                showWalletModal();
+                return;
+            }
+            
+            if (!walletAddress) {
+                showToast('钱包地址无效，请重新连接');
+                return;
+            }
+            
+            // 防止重复点击
+            if (likingPosts.has(postId)) {
+                console.log('Already liking this post');
+                return;
+            }
+            likingPosts.add(postId);
+            
+            const post = posts.find(p => p.id === postId);
+            if (!post) {
+                likingPosts.delete(postId);
+                return;
+            }
+            
+            // 乐观更新 - 立即更新 UI
+            const oldLiked = post.liked;
+            const oldLikes = post.likes;
+            post.liked = !oldLiked;
+            post.likes = oldLiked ? Math.max(0, oldLikes - 1) : oldLikes + 1;
+            renderPosts();
+            
+            try {
+                const res = await fetch(`${API_BASE}/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wallet_address: walletAddress })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('操作失败');
+                }
+                
+                const data = await res.json();
+                
+                // 用服务器返回的数据更新
+                post.liked = data.liked;
+                post.likes = data.likes;
+                renderPosts();
+            } catch (error) {
+                // 失败时回滚
+                post.liked = oldLiked;
+                post.likes = oldLikes;
+                renderPosts();
+                showToast('操作失败，请重试');
+            } finally {
+                likingPosts.delete(postId);
+            }
+        }
+
+        async function toggleComments(postId) {
+            const section = document.getElementById(`comments-${postId}`);
+            const isVisible = section.style.display !== 'none';
+            
+            if (isVisible) {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+                await loadComments(postId);
+            }
+        }
+
+        async function loadComments(postId) {
+            const listEl = document.getElementById(`comments-list-${postId}`);
+            
+            try {
+                const res = await fetch(`${API_BASE}/posts/${postId}/comments`);
+                if (!res.ok) throw new Error('加载失败');
+                
+                const data = await res.json();
+                
+                if (data.comments.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center;color:#999;padding:20px;font-size:13px;">暂无评论</div>';
+                } else {
+                    listEl.innerHTML = data.comments.map(c => `
+                        <div class="comment-item">
+                            <img class="comment-avatar" src="${c.user.avatar}" alt="">
+                            <div class="comment-body">
+                                <div class="comment-username">${escapeHtml(c.user.username)}</div>
+                                <div class="comment-text">${escapeHtml(c.content)}</div>
+                                <div class="comment-time">${formatTime(c.created_at)}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载评论失败:', error);
+                listEl.innerHTML = '<div style="text-align:center;color:#e74c3c;padding:20px;font-size:13px;">加载失败</div>';
+            }
+        }
+
+        async function submitComment(postId) {
+            if (!currentUser) {
+                showWalletModal();
+                return;
+            }
+            
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+            
+            if (!content) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/posts/${postId}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        wallet_address: walletAddress,
+                        content 
+                    })
+                });
+                
+                if (!res.ok) throw new Error('发送失败');
+                
+                input.value = '';
+                await loadComments(postId);
+                
+                // 更新评论数
+                const post = posts.find(p => p.id === postId);
+                if (post) {
+                    post.comment_count = (post.comment_count || 0) + 1;
+                    renderPosts();
+                    // 重新打开评论区
+                    document.getElementById(`comments-${postId}`).style.display = 'block';
+                    loadComments(postId);
+                }
+            } catch (error) {
+                console.error('发送评论失败:', error);
+                showToast('发送失败，请重试');
+            }
+        }
+
+        // ========== 分享 ==========
+
+        function showShareModal() {
+            if (!currentUser) {
+                showWalletModal();
+                return;
+            }
+            
+            if (!pendingShare) return;
+            
+            document.getElementById('shareFoodEmoji').textContent = pendingShare.food_emoji;
+            document.getElementById('shareFoodName').textContent = pendingShare.food_name;
+            document.getElementById('shareContent').value = '';
+            document.getElementById('shareModal').classList.add('show');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('show');
+            // 清除 URL 参数
+            window.history.replaceState({}, '', window.location.pathname);
+            pendingShare = null;
+        }
+
+        async function submitPost() {
+            if (!currentUser || !pendingShare) return;
+            
+            const content = document.getElementById('shareContent').value.trim();
+            
+            try {
+                const res = await fetch(`${API_BASE}/posts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        wallet_address: walletAddress,
+                        food_name: pendingShare.food_name,
+                        food_emoji: pendingShare.food_emoji,
+                        mood: pendingShare.mood,
+                        content
+                    })
+                });
+                
+                if (!res.ok) throw new Error('发布失败');
+                
+                closeShareModal();
+                showToast('分享成功！');
+                loadPosts();
+            } catch (error) {
+                console.error('发布失败:', error);
+                showToast('发布失败，请重试');
+            }
+        }
+
+        // ========== 工具函数 ==========
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp * 1000);
+            const now = new Date();
+            const diff = (now - date) / 1000;
+            
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+            if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+            if (diff < 604800) return Math.floor(diff / 86400) + '天前';
+            
+            return `${date.getMonth() + 1}月${date.getDate()}日`;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 点击弹窗外部关闭
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+
+        // 初始化
+        async function init() {
+            // 尝试自动登录
+            const savedWallet = localStorage.getItem('wallet_address');
+            if (savedWallet && window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.includes(savedWallet.toLowerCase())) {
+                        walletAddress = savedWallet;
+                        provider = new ethers.providers.Web3Provider(window.ethereum);
+                        await authWithWallet(walletAddress);
+                    }
+                } catch (e) {
+                    console.log('自动登录失败');
+                }
+            }
+            
+            // 检查分享参数
+            checkPendingShare();
+            
+            // 加载帖子
+            loadPosts();
+        }
+
+        init();
+    </script>
+</body>
+</html>

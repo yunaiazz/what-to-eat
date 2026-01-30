@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>吃什么 - 情绪饮食</title>
-    <link rel="icon" href="favicon.ico?v=20260125" type="image/x-icon">
+    <link rel="icon" href="favicon.ico?v=20260129" type="image/x-icon">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -17,7 +20,7 @@
         .app {
             max-width: 420px;
             margin: 0 auto;
-            padding: 70px 20px 40px;
+            padding: 40px 20px;
             min-height: 100vh;
         }
 
@@ -477,49 +480,6 @@
             border-color: #ff9a56;
         }
 
-        /* 顶部导航栏 */
-        .top-nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 56px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 16px;
-            background: rgba(254, 249, 243, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 50;
-            box-shadow: 0 1px 8px rgba(0,0,0,0.05);
-        }
-
-        .nav-btn {
-            height: 40px;
-            padding: 0 16px;
-            background: #fff;
-            border: none;
-            border-radius: 20px;
-            font-size: 15px;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-        }
-
-        .community-btn {
-            background: linear-gradient(135deg, #ff9a56 0%, #ff6f56 100%);
-            color: #fff;
-            font-weight: 500;
-        }
-
         /* 设置按钮 */
         .settings-btn {
             position: fixed;
@@ -631,10 +591,7 @@
     </style>
 </head>
 <body>
-    <div class="top-nav">
-        <button class="nav-btn" onclick="openSettings()">⚙️</button>
-        <button class="nav-btn community-btn" onclick="goToCommunity()">🍽️ 社区</button>
-    </div>
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
     
     <div class="app">
         <div class="header">
@@ -649,7 +606,6 @@
             <div class="step-dot" id="step4"></div>
             <div class="step-dot" id="step5"></div>
             <div class="step-dot" id="step6"></div>
-            <div class="step-dot" id="step7"></div>
         </div>
 
         <!-- 第一页：性别选择 -->
@@ -724,7 +680,7 @@
         <!-- 第三页：心情 -->
         <div class="page" id="page3">
             <div class="question-card">
-                <div class="question-label">问题 1/4</div>
+                <div class="question-label">问题 1/3</div>
                 <div class="question-text">此刻你的心情如何？</div>
                 <div class="mood-grid">
                     <div class="mood-btn" onclick="selectMood(this, '开心')">
@@ -760,7 +716,7 @@
         <!-- 第四页：身体状态 -->
         <div class="page" id="page4">
             <div class="question-card">
-                <div class="question-label">问题 2/4</div>
+                <div class="question-label">问题 2/3</div>
                 <div class="question-text">你现在身体感觉如何？</div>
                 <div class="mood-grid">
                     <div class="mood-btn" onclick="selectBody(this, '很饿')">
@@ -785,34 +741,10 @@
             <button class="btn btn-secondary" onclick="prevPage(3)">上一步</button>
         </div>
 
-        <!-- 第五页：口味选择 -->
+        <!-- 第五页：偏好 -->
         <div class="page" id="page5">
             <div class="question-card">
-                <div class="question-label">问题 3/4</div>
-                <div class="question-text">今天想吃什么口味？</div>
-                <div class="mood-grid">
-                    <div class="mood-btn" onclick="selectTaste(this, '咸')">
-                        <div class="emoji">🍜</div>
-                        <div class="text">咸的（正餐）</div>
-                    </div>
-                    <div class="mood-btn" onclick="selectTaste(this, '甜')">
-                        <div class="emoji">🍰</div>
-                        <div class="text">甜的（甜品）</div>
-                    </div>
-                    <div class="mood-btn" onclick="selectTaste(this, '都可以')">
-                        <div class="emoji">🎲</div>
-                        <div class="text">都可以</div>
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-primary" id="nextBtn3" disabled onclick="nextPage(6)">下一步</button>
-            <button class="btn btn-secondary" onclick="prevPage(4)">上一步</button>
-        </div>
-
-        <!-- 第六页：偏好 -->
-        <div class="page" id="page6">
-            <div class="question-card">
-                <div class="question-label">问题 4/4</div>
+                <div class="question-label">问题 3/3</div>
                 <div class="question-text">还有什么想告诉我的吗？</div>
             </div>
             <div class="input-card">
@@ -820,11 +752,11 @@
                 <div class="input-hint">可以留空，直接点击下一步</div>
             </div>
             <button class="btn btn-primary" onclick="startAnalysis()">开始 AI 分析</button>
-            <button class="btn btn-secondary" onclick="prevPage(5)">上一步</button>
+            <button class="btn btn-secondary" onclick="prevPage(4)">上一步</button>
         </div>
 
-        <!-- 第七页：AI分析中 -->
-        <div class="page" id="page7">
+        <!-- 第六页：AI分析中 -->
+        <div class="page" id="page6">
             <div class="analyzing">
                 <div class="analyzing-icon" id="analyzingIcon">🧠</div>
                 <h2 id="analyzingTitle">AI 正在分析你的状态</h2>
@@ -832,8 +764,8 @@
             </div>
         </div>
 
-        <!-- 第八页：结果 -->
-        <div class="page" id="page8">
+        <!-- 第七页：结果 -->
+        <div class="page" id="page7">
             <div class="result-card">
                 <div class="ai-insight">
                     <div class="ai-insight-label">🤖 AI 分析</div>
@@ -862,17 +794,9 @@
                 </div>
 
                 <button class="btn btn-primary" id="spinBtn" onclick="spinSlot()">开始抽取</button>
-                
-                <!-- 分享到社区按钮 -->
-                <button class="btn btn-secondary" id="shareBtn" onclick="shareToCommunity()" style="display:none; margin-top:12px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff;">
-                    📢 分享到社区
-                </button>
             </div>
 
             <button class="btn btn-secondary" onclick="restart()">重新开始</button>
-            <button class="btn btn-secondary" onclick="goToCommunity()" style="background:#fff5f2; color:#ff6f56;">
-                🍽️ 逛逛美食社区
-            </button>
         </div>
     </div>
 
@@ -902,7 +826,6 @@
             personality: '',  // 性格
             mood: '',
             body: '',
-            taste: '',  // '咸' = 正餐, '甜' = 甜品, '都可以' = 混合
             extra: ''
         };
         let recommendations = [];
@@ -925,10 +848,10 @@
             { keywords: ['炸鸡', '鸡排', '鸡翅', '鸡腿', '鸡块', '炸'], emoji: '🍗' },
             { keywords: ['鸡', '鸡肉', '白切鸡', '口水鸡', '辣子鸡', '黄焖鸡', '叫花鸡'], emoji: '🐔' },
             { keywords: ['面', '拉面', '米线', '粉', '螺蛳粉', '米粉', '肠粉', '河粉', '刀削面', '炸酱面', '热干面', '担担面', '凉面', '焖面'], emoji: '🍜' },
-            { keywords: ['意面', '意大利面', '通心粉', '千层面'], emoji: '🍝' },
+            { keywords: ['意面', '通心粉', '千层面'], emoji: '🍝' },
             { keywords: ['饺子', '馄饨', '抄手', '云吞', '锅贴', '包子', '小笼', '生煎', '灌汤包'], emoji: '🥟' },
             { keywords: ['粥', '稀饭', '泡饭'], emoji: '🥣' },
-            { keywords: ['饭', '米饭', '炒饭', '盖浇', '卤肉饭', '煲仔饭', '拌饭', '咖喱饭', '蛋炒饭', '扬州炒饭'], emoji: '🍚' },
+            { keywords: ['饭', '米饭', '炒饭', '盖浇', '卤肉饭', '煲仔饭', '拌饭', '咖喱饭', '蛋炒饭'], emoji: '🍚' },
             { keywords: ['饭团', '寿司饭', '紫菜包饭'], emoji: '🍙' },
             
             // 肉类
@@ -945,14 +868,14 @@
             { keywords: ['海鲜', '贝', '蛤蜊', '生蚝', '牡蛎', '鲍鱼', '海参', '墨鱼', '鱿鱼', '章鱼', '八爪鱼'], emoji: '🦑' },
             
             // 禽类
-            { keywords: ['鸭', '烤鸭', '北京烤鸭', '盐水鸭', '酱鸭', '鸭血'], emoji: '🦆' },
+            { keywords: ['鸭', '烤鸭', '盐水鸭', '酱鸭', '鸭血'], emoji: '🦆' },
             { keywords: ['鹅', '烧鹅', '卤鹅'], emoji: '🦢' },
             
             // 日韩料理
             { keywords: ['寿司', '刺身', '生鱼片', '手卷'], emoji: '🍣' },
             { keywords: ['定食', '便当', '套餐'], emoji: '🍱' },
-            { keywords: ['烤肉', '日式烧肉', '韩式烤肉', '和牛'], emoji: '🥩' },
-            { keywords: ['泡菜', '韩式', '石锅'], emoji: '🥬' },
+            { keywords: ['烤肉', '和牛'], emoji: '🥩' },
+            { keywords: ['泡菜', '石锅'], emoji: '🥬' },
             
             // 西餐快餐
             { keywords: ['披萨', '比萨', 'pizza'], emoji: '🍕' },
@@ -1075,14 +998,6 @@
             document.getElementById('nextBtn2').disabled = false;
         }
 
-        // 选择口味
-        function selectTaste(el, taste) {
-            document.querySelectorAll('#page5 .mood-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-            answers.taste = taste;
-            document.getElementById('nextBtn3').disabled = false;
-        }
-
         // 页面切换
         function nextPage(num) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1097,7 +1012,7 @@
         }
 
         function updateSteps(current) {
-            for (let i = 1; i <= 7; i++) {
+            for (let i = 1; i <= 6; i++) {
                 const dot = document.getElementById('step' + i);
                 dot.classList.remove('active', 'done');
                 if (i < current) dot.classList.add('done');
@@ -1108,7 +1023,7 @@
         // 开始AI分析
         async function startAnalysis() {
             answers.extra = document.getElementById('extraInput').value;
-            nextPage(7);
+            nextPage(6);
             
             // 更新分析页面的文案
             const isFemale = answers.gender === 'female';
@@ -1126,7 +1041,7 @@
             try {
                 const response = await callDeepSeek();
                 parseAIResponse(response);
-                nextPage(8);
+                nextPage(7);
             } catch (error) {
                 console.error('API Error:', error);
                 useMockData();
@@ -1174,7 +1089,8 @@
 2. 根据情绪科学推荐食物
 3. foods 只填食物名称，简短
 4. 推荐10-12个不同类型的食物
-5. 【重要】每次推荐要有新意和变化，不要总是推荐常见的食物，可以包含：地方特色小吃、异国料理、创意菜品、时令美食等，让用户有惊喜感`;
+5. 【重要】每次推荐要有新意和变化，包含各种创意菜品、时令美食等
+6. 【禁止】食物名称中不要包含任何国家、地区、城市名称，如"日式"、"韩式"、"法式"、"意式"、"泰式"、"越南"、"西班牙"、"土耳其"、"云南"、"港式"、"北京"、"扬州"等，只用食物本身的名字`;
 
             const res = await fetch(`${config.apiBase}/v1/chat/completions`, {
                 method: 'POST',
@@ -1284,6 +1200,46 @@
             '希腊酸奶': { reason: '蛋白质含量高，益生菌丰富，低糖低脂', pairing: ['蜂蜜', '坚果', '蓝莓'], tip: '选择原味，自己添加水果和蜂蜜' },
         };
 
+        // 默认健康建议池 - 随机选择
+        const defaultReasons = [
+            '这道美食能满足味蕾，适量享用有助于愉悦心情',
+            '美食是治愈心灵的良药，享受当下的美味吧',
+            '偶尔放纵一下也是生活的调味剂，开心最重要',
+            '食物带来的满足感能让大脑分泌多巴胺，让你更快乐',
+            '好好吃饭是对自己最好的关爱，值得认真对待',
+            '美味的食物能带来幸福感，今天你值得拥有',
+            '享受美食的过程本身就是一种放松和疗愈',
+            '适当满足口腹之欲，有助于保持好心情',
+            '人生苦短，美食不可辜负，好好享用吧',
+            '食物是最简单的幸福来源，细细品味吧'
+        ];
+        const defaultPairings = [
+            ['蔬菜沙拉', '水果', '清茶'],
+            ['凉拌黄瓜', '酸奶', '柠檬水'],
+            ['清炒时蔬', '玉米汁', '水果'],
+            ['番茄汤', '全麦面包', '鲜榨果汁'],
+            ['蒜蓉西兰花', '小米粥', '水果'],
+            ['凉拌木耳', '绿豆汤', '坚果'],
+            ['白灼青菜', '银耳汤', '苹果'],
+            ['海带丝', '红枣茶', '香蕉'],
+            ['蒸南瓜', '豆浆', '蓝莓'],
+            ['清炒豆芽', '山药粥', '橙子']
+        ];
+        const defaultTips = [
+            '建议荤素搭配，细嚼慢咽，享受美食的同时注意均衡营养',
+            '吃饭时放下手机，专注品味食物的味道会更幸福',
+            '七八分饱刚刚好，给胃留点空间更舒适',
+            '饭后散步十分钟，有助于消化和保持好身材',
+            '多喝水有助于新陈代谢，饭前一杯水更健康',
+            '慢慢吃，让大脑有时间接收饱腹信号',
+            '搭配一些蔬菜水果，营养更均衡哦',
+            '享受美食的同时别忘了适量运动，保持活力',
+            '用心感受食物的色香味，这是生活的小确幸',
+            '和喜欢的人一起吃饭，食物会更美味',
+            '保持愉快的心情用餐，有助于消化吸收',
+            '偶尔的美食犒赏是对努力生活的自己的奖励'
+        ];
+
         // 获取食物的健康信息（包含默认处理）
         function getHealthInfo(food) {
             if (healthFoodData[food]) {
@@ -1295,15 +1251,15 @@
                     return healthFoodData[key];
                 }
             }
-            // 默认健康建议
+            // 随机默认健康建议
             return {
-                reason: '这道美食能满足味蕾，适量享用有助于愉悦心情',
-                pairing: ['蔬菜沙拉', '水果', '清茶'],
-                tip: '建议荤素搭配，细嚼慢咽，享受美食的同时注意均衡营养'
+                reason: defaultReasons[Math.floor(Math.random() * defaultReasons.length)],
+                pairing: defaultPairings[Math.floor(Math.random() * defaultPairings.length)],
+                tip: defaultTips[Math.floor(Math.random() * defaultTips.length)]
             };
         }
 
-        // 显示健康信息 - 调用 DeepSeek API 生成个性化健康建议
+        // 显示健康信息 - 调用DeepSeek生成
         async function showHealthInfo(food) {
             const isFemale = answers.gender === 'female';
             const name = isFemale ? '小桃' : '小帅';
@@ -1311,60 +1267,32 @@
             
             // 先显示加载状态
             document.getElementById('aiInsight').innerHTML = `
-                <div style="text-align:center;">
-                    <div style="margin-bottom:8px;">🎉 <strong>今天就吃${food}吧！</strong></div>
-                    <div style="color:#999;font-size:12px;">正在为你生成健康建议...</div>
-                </div>
+                <div style="margin-bottom:8px;">🎉 <strong>今天就吃${food}吧！</strong></div>
+                <div style="color:#999;">${name}正在为你查询健康信息<span class="loading-dots"><span></span><span></span><span></span></span></div>
             `;
             
-            // 如果没有 API Key，使用离线数据
+            // 如果没有API Key，使用本地数据
             if (!config.apiKey) {
-                showOfflineHealthInfo(food);
+                const info = getHealthInfo(food);
+                renderHealthInfo(food, info);
                 return;
             }
             
             try {
-                const healthAdvice = await fetchHealthAdvice(food);
-                renderHealthAdvice(food, healthAdvice);
-            } catch (error) {
-                console.error('健康建议 API 错误:', error);
-                showOfflineHealthInfo(food);
-            }
-        }
-        
-        // 调用 DeepSeek API 获取健康建议
-        async function fetchHealthAdvice(food) {
-            const isFemale = answers.gender === 'female';
-            const name = isFemale ? '小桃' : '小帅';
-            const personality = answers.personality;
-            const pDesc = personalityDesc[personality] || '';
-            
-            const prompt = `你是${name}，${isFemale ? '一个女生' : '一个男生'}，性格是${personality}。${pDesc}。
-
-用户选择了【${food}】作为今天的美食。根据用户当前的状态，用你的人设和性格语气给出健康饮食建议。
-
-用户状态：
-- 心情：${answers.mood}
-- 身体状态：${answers.body}
-- 口味偏好：${answers.taste || '都可以'}
-- 补充说明：${answers.extra || '无'}
+                const prompt = `你是${name}，性格是${personality}。用户选择了吃「${food}」，请用你的性格语气给出健康饮食建议。
 
 请用以下JSON格式回复（不要有其他内容）：
 {
-  "reason": "用${personality}的语气说明为什么这个食物适合用户当前状态（结合心情、身体状态，40字以内）",
+  "reason": "为什么推荐这道食物，营养价值或心情方面的好处（30字以内，体现${personality}性格）",
   "pairing": ["搭配食物1", "搭配食物2", "搭配食物3"],
-  "tip": "用${personality}的语气给出一条健康小贴士或温馨提醒（结合用户补充说明，40字以内）"
+  "tip": "一句健康小贴士或温馨提醒（30字以内，体现${personality}性格）"
 }
 
 要求：
-1. reason、tip 都要体现${personality}的性格特点和说话风格
-2. 搭配建议要科学合理，与主食物营养互补
-3. 如果用户提到减肥/健康需求，tip要给出相应建议`;
+1. 内容要有新意，不要总是重复相同的建议
+2. pairing推荐3个适合搭配的食物或饮品
+3. 语气要符合${personality}的性格特点`;
 
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-            try {
                 const res = await fetch(`${config.apiBase}/v1/chat/completions`, {
                     method: 'POST',
                     headers: {
@@ -1374,47 +1302,32 @@
                     body: JSON.stringify({
                         model: 'deepseek-chat',
                         messages: [{ role: 'user', content: prompt }],
-                        temperature: 0.8
-                    }),
-                    signal: controller.signal
+                        temperature: 0.9
+                    })
                 });
 
-                clearTimeout(timeoutId);
-
-                if (!res.ok) throw new Error('API request failed: ' + res.status);
+                if (!res.ok) throw new Error('API request failed');
+                
                 const data = await res.json();
-                
-                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-                    throw new Error('Invalid API response');
-                }
-                
                 const content = data.choices[0].message.content;
                 const jsonMatch = content.match(/\{[\s\S]*\}/);
+                
                 if (jsonMatch) {
-                    return JSON.parse(jsonMatch[0]);
+                    const info = JSON.parse(jsonMatch[0]);
+                    renderHealthInfo(food, info);
+                } else {
+                    throw new Error('Invalid response');
                 }
-                throw new Error('Invalid JSON response');
-            } catch (error) {
-                clearTimeout(timeoutId);
-                throw error;
+            } catch (e) {
+                console.error('Health info API error:', e);
+                // 降级到本地数据
+                const info = getHealthInfo(food);
+                renderHealthInfo(food, info);
             }
         }
         
-        // 渲染健康建议
-        function renderHealthAdvice(food, advice) {
-            const pairingText = advice.pairing.map(p => getEmoji(p) + p).join('、');
-            const healthContent = `
-                <div style="margin-bottom:8px;">🎉 <strong>今天就吃${food}吧！</strong></div>
-                <div style="margin-bottom:6px;">💡 ${advice.reason}</div>
-                <div style="margin-bottom:6px;">🍽️ 推荐搭配：${pairingText}</div>
-                <div>✨ ${advice.tip}</div>
-            `;
-            document.getElementById('aiInsight').innerHTML = healthContent;
-        }
-        
-        // 离线模式显示健康信息
-        function showOfflineHealthInfo(food) {
-            const info = getHealthInfo(food);
+        // 渲染健康信息
+        function renderHealthInfo(food, info) {
             const pairingText = info.pairing.map(p => getEmoji(p) + p).join('、');
             const healthContent = `
                 <div style="margin-bottom:8px;">🎉 <strong>今天就吃${food}吧！</strong></div>
@@ -1435,81 +1348,66 @@
             const isFemale = answers.gender === 'female';
             const personality = answers.personality;
             
-            // 食物池 - 按口味分类（咸=正餐，甜=甜品）
-            const saltyFoods = [
-                // 主食类
-                '日式定食', '清蒸鱼', '寿司', '越南河粉', '泰式沙拉', '地中海沙拉', '牛油果沙拉',
-                '三文鱼', '白灼虾', '烤鸡胸', '蔬菜沙拉', '藜麦饭', '日式烧肉', '粤式早茶', '怀石料理',
-                '清炖牛肉', '蒸蛋', '参鸡汤', '鸡汤面', '养生粥', '菌菇汤', '番茄蛋汤',
-                '清蒸鲈鱼', '白切鸡', '小米粥', '山药排骨汤', '椰子鸡', '花胶鸡',
-                '深海鱼', '藜麦沙拉', '白灼菜心', '蒜蓉西兰花', '凉拌木耳', '芦笋沙拉', '鹰嘴豆泥',
-                '豆腐料理', '荞麦面', '日式冷豆腐', '凉拌黄瓜', '清蒸海鲜', '海鲜刺身',
-                // 更多正餐
-                '麻辣烫', '冒菜', '火锅', '烧烤', '烤串', '炸鸡', '汉堡', '披萨', '意面',
-                '饺子', '包子', '馄饨', '炒饭', '盖浇饭', '拉面', '刀削面', '担担面', '螺蛳粉',
-                '红烧肉', '回锅肉', '宫保鸡丁', '鱼香肉丝', '麻婆豆腐', '酸菜鱼', '水煮鱼',
-                '烤鸭', '白斩鸡', '卤味', '牛肉面', '羊肉汤', '馒头', '煎饼果子', '肉夹馍'
-            ];
-            
-            const sweetFoods = [
-                // 甜品类
-                '蛋糕', '提拉米苏', '芝士蛋糕', '慕斯', '千层蛋糕', '冰淇淋', '雪糕',
-                '布丁', '果冻', '烧仙草', '甜甜圈', '面包', '可颂', '肉桂卷', '泡芙',
-                '马卡龙', '饼干', '曲奇', '巧克力', '糖果', '奶茶', '珍珠奶茶',
-                '抹茶拿铁', '热可可', '香蕉奶昔', '水果捞', '杨枝甘露', '芒果班戟',
-                '豆花', '龟苓膏', '双皮奶', '姜撞奶', '红豆沙', '绿豆沙', '芋圆',
-                '银耳莲子羹', '红枣桂圆汤', '银耳汤', '奇亚籽布丁', '酸奶', '坚果酸奶', '希腊酸奶',
-                '水果拼盘', '全麦面包', '牛油果吐司', '燕麦粥',
-                // 饮品
-                '鲜榨果汁', '蜂蜜柚子茶', '蜂蜜水', '柠檬茶', '水果茶', '冰沙', '思慕雪'
-            ];
-            
-            // 心情与食物的关联（用于筛选优先推荐的食物）
-            const moodFoods = {
-                '开心': { salty: ['日式定食', '海鲜刺身', '清蒸鱼', '寿司', '越南河粉', '泰式沙拉', '烧烤', '火锅', '烤鸭', '宫保鸡丁'], sweet: ['蛋糕', '冰淇淋', '奶茶', '水果捞', '杨枝甘露', '芒果班戟', '提拉米苏', '马卡龙'] },
-                '疲惫': { salty: ['参鸡汤', '鸡汤面', '养生粥', '菌菇汤', '番茄蛋汤', '椰子鸡', '花胶鸡', '牛肉面', '羊肉汤', '馄饨'], sweet: ['银耳莲子羹', '红枣桂圆汤', '热牛奶', '蜂蜜水', '燕麦粥', '酸奶', '豆花', '红豆沙'] },
-                '焦虑': { salty: ['三文鱼', '深海鱼', '藜麦沙拉', '地中海沙拉', '清蒸鱼', '白灼菜心', '蒜蓉西兰花', '日式定食', '荞麦面', '豆腐料理'], sweet: ['坚果酸奶', '希腊酸奶', '香蕉奶昔', '抹茶拿铁', '奇亚籽布丁', '牛油果吐司', '水果拼盘', '洋甘菊茶'] },
-                '低落': { salty: ['参鸡汤', '鸡汤面', '蒸蛋', '养生粥', '椰子鸡', '麻辣烫', '火锅', '烤串', '红烧肉', '酸菜鱼'], sweet: ['蛋糕', '冰淇淋', '巧克力', '奶茶', '热可可', '甜甜圈', '布丁', '双皮奶', '芋圆', '杨枝甘露'] },
-                '平静': { salty: ['日式定食', '蔬菜沙拉', '清蒸鱼', '素食简餐', '养生粥', '豆腐料理', '荞麦面', '白灼虾', '日式冷豆腐', '凉拌黄瓜'], sweet: ['银耳汤', '水果拼盘', '酸奶', '燕麦粥', '豆花', '绿豆沙', '奇亚籽布丁', '花茶'] },
-                '兴奋': { salty: ['火锅', '烧烤', '烤串', '麻辣烫', '清蒸海鲜', '白灼虾', '三文鱼', '泰式沙拉', '日式定食', '烤鸭'], sweet: ['冰淇淋', '奶茶', '水果捞', '冰沙', '芒果班戟', '杨枝甘露', '鲜榨果汁', '思慕雪'] }
+            // 健康化食物池 - 减少油炸高糖食物，增加健康选项
+            const foodPool = {
+                '开心': [
+                    '海鲜刺身', '清蒸鱼', '寿司', '河粉', '牛油果沙拉', '蔬菜沙拉', '鸡肉卷',
+                    '三文鱼', '白灼虾', '烤鸡胸', '藜麦饭', '早茶点心', '清炖牛肉', '烤牛排',
+                    '蒸蛋', '水果拼盘', '酸奶', '坚果酸奶', '绿茶', '花茶', '鲜榨果汁',
+                    '虾仁炒饭', '蟹肉粥', '鳗鱼饭', '牛肉面', '鸡丝凉面', '小笼包', '虾饺',
+                    '烤三文鱼', '香煎鳕鱼', '蒜蓉蒸扇贝', '椒盐虾', '糖醋里脊', '宫保鸡丁',
+                    '木须肉', '青椒肉丝', '鱼香肉丝', '回锅肉', '红烧排骨', '蒜香排骨'
+                ],
+                '疲惫': [
+                    '鸡汤', '鸡汤面', '养生粥', '银耳莲子羹', '红枣桂圆汤', '菌菇汤', '番茄蛋汤',
+                    '清蒸鲈鱼', '白切鸡', '蒸蛋', '藜麦饭', '燕麦粥', '小米粥', '山药排骨汤',
+                    '豆浆', '牛奶', '蜂蜜水', '花茶', '红糖姜茶', '枸杞茶', '椰子鸡', '花胶鸡',
+                    '当归鸡汤', '黄芪炖鸡', '乌鸡汤', '猪肚鸡', '羊肉汤', '牛肉汤', '排骨汤',
+                    '八宝粥', '皮蛋瘦肉粥', '海鲜粥', '虾仁粥', '南瓜粥', '红豆粥', '绿豆粥',
+                    '蒸饺', '馄饨', '云吞面', '牛腩面', '猪脚饭', '卤肉饭', '鸡腿饭'
+                ],
+                '焦虑': [
+                    '三文鱼', '深海鱼', '牛油果沙拉', '藜麦沙拉', '蔬菜沙拉', '坚果酸奶', '酸奶',
+                    '燕麦粥', '香蕉奶昔', '绿茶', '菊花茶', '薰衣草茶', '抹茶拿铁', '奇亚籽布丁',
+                    '清蒸鲈鱼', '白灼菜心', '蒜蓉西兰花', '凉拌木耳', '芦笋沙拉', '牛油果吐司',
+                    '核桃仁', '杏仁', '腰果', '开心果', '蓝莓', '草莓', '樱桃', '葡萄',
+                    '豆腐脑', '凉拌豆腐', '清炒时蔬', '蒸南瓜', '蒸红薯', '玉米', '毛豆',
+                    '薏米粥', '莲子羹', '百合银耳汤', '雪梨汤', '冰糖雪梨', '罗汉果茶'
+                ],
+                '低落': [
+                    '鸡汤', '香蕉奶昔', '热牛奶', '燕麦粥', '坚果酸奶', '水果拼盘', '酸奶',
+                    '三文鱼', '清蒸鱼', '鸡汤面', '蒸蛋', '养生粥', '银耳汤', '红枣桂圆汤',
+                    '抹茶拿铁', '花茶', '蜂蜜柚子茶', '热可可', '全麦面包', '牛油果吐司', '坚果',
+                    '芝士蛋糕', '提拉米苏', '巧克力慕斯', '草莓蛋糕', '舒芙蕾', '布丁', '冰淇淋',
+                    '红豆汤', '芋圆', '豆花', '杨枝甘露', '芒果西米露', '椰汁西米露',
+                    '糯米鸡', '叉烧包', '蛋挞', '菠萝包', '奶黄包', '流沙包', '糖水'
+                ],
+                '平静': [
+                    '清淡套餐', '蔬菜沙拉', '清蒸鱼', '素食简餐', '养生粥', '豆腐料理', '荞麦面',
+                    '白灼虾', '蒸蛋', '银耳汤', '水果拼盘', '花茶', '凉拌豆腐', '凉拌黄瓜',
+                    '白切鸡', '藜麦饭', '菌菇汤', '番茄蛋汤', '燕麦粥', '酸奶', '绿茶',
+                    '清炒豆苗', '蒜蓉油麦菜', '白灼生菜', '凉拌海带', '凉拌莴笋', '凉拌藕片',
+                    '素炒三丝', '清炒西芹', '蚝油生菜', '香菇青菜', '口蘑炒肉', '素什锦',
+                    '紫菜蛋花汤', '冬瓜汤', '丝瓜汤', '白萝卜汤', '海带豆腐汤', '西红柿鸡蛋面'
+                ],
+                '兴奋': [
+                    '清蒸海鲜', '白灼虾', '三文鱼', '烤鸡胸', '蔬菜沙拉', '藜麦沙拉', '清淡套餐',
+                    '河粉', '凉拌沙拉', '凉拌木耳', '蒜蓉西兰花', '清蒸鱼', '菌菇汤',
+                    '酸奶', '鲜榨果汁', '绿茶', '花茶', '坚果', '水果拼盘', '牛油果沙拉',
+                    '烤羊排', '烤鸡翅', '盐焗鸡', '口水鸡', '手撕鸡', '柠檬鸡', '咖喱鸡',
+                    '黑椒牛柳', '蒜香牛肉', '酱牛肉', '卤牛肉', '水煮牛肉', '干煸牛肉丝',
+                    '蒜蓉龙虾', '清蒸螃蟹', '蒜蓉扇贝', '烤生蚝', '蛏子', '花甲', '海鲜拼盘'
+                ]
             };
             
-            // 随机打乱并取指定数量
+            // 随机打乱并取12个
             function shuffleAndPick(arr, count) {
                 const shuffled = [...arr].sort(() => Math.random() - 0.5);
                 return shuffled.slice(0, count);
             }
             
-            // 合并并去重
-            function mergeUnique(arr1, arr2) {
-                return [...new Set([...arr1, ...arr2])];
-            }
-            
             const mood = answers.mood || '平静';
-            const taste = answers.taste || '都可以';
-            const moodData = moodFoods[mood] || moodFoods['平静'];
-            
-            let pool = [];
-            
-            if (taste === '咸') {
-                // 只选正餐，优先推荐与心情相关的
-                const priorityFoods = moodData.salty || [];
-                const otherSalty = saltyFoods.filter(f => !priorityFoods.includes(f));
-                pool = [...shuffleAndPick(priorityFoods, 8), ...shuffleAndPick(otherSalty, 6)];
-            } else if (taste === '甜') {
-                // 只选甜品，优先推荐与心情相关的
-                const priorityFoods = moodData.sweet || [];
-                const otherSweet = sweetFoods.filter(f => !priorityFoods.includes(f));
-                pool = [...shuffleAndPick(priorityFoods, 8), ...shuffleAndPick(otherSweet, 6)];
-            } else {
-                // 都可以：混合推荐，保持平衡（6咸 + 6甜）
-                const saltys = [...shuffleAndPick(moodData.salty || [], 4), ...shuffleAndPick(saltyFoods, 3)];
-                const sweets = [...shuffleAndPick(moodData.sweet || [], 4), ...shuffleAndPick(sweetFoods, 3)];
-                pool = [...saltys.slice(0, 6), ...sweets.slice(0, 6)];
-            }
-            
-            // 去重并随机打乱
-            pool = shuffleAndPick([...new Set(pool)], 12);
+            const pool = foodPool[mood] || foodPool['平静'];
 
             // 不同性格的语气模板
             const insightTemplates = {
@@ -1586,7 +1484,7 @@
             aiInsight = templates[mood] || templates['平静'];
             recommendations = shuffleAndPick(pool, 12);
             renderResult();
-            nextPage(8);
+            nextPage(7);
         }
 
         // 渲染结果
@@ -1695,29 +1593,12 @@
                 isSpinning = false;
                 // 显示健康信息
                 showHealthInfo(result);
-                // 显示分享按钮并保存抽中的食物
-                window.lastDrawnFood = { name: result, emoji: getEmoji(result) };
-                document.getElementById('shareBtn').style.display = 'block';
             }, 3000);
-        }
-        
-        // 分享到社区
-        function shareToCommunity() {
-            if (!window.lastDrawnFood) return;
-            const food = encodeURIComponent(window.lastDrawnFood.name);
-            const emoji = encodeURIComponent(window.lastDrawnFood.emoji);
-            const mood = encodeURIComponent(answers.mood || '');
-            window.location.href = `community.html?food=${food}&emoji=${emoji}&mood=${mood}`;
-        }
-        
-        // 跳转到社区
-        function goToCommunity() {
-            window.location.href = 'community.html';
         }
 
         // 重新开始
         function restart() {
-            answers = { gender: '', personality: '', mood: '', body: '', taste: '', extra: '' };
+            answers = { gender: '', personality: '', mood: '', body: '', extra: '' };
             recommendations = [];
             customFoods = [];
             document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
@@ -1727,7 +1608,6 @@
             document.getElementById('nextBtnP').disabled = true;
             document.getElementById('nextBtn1').disabled = true;
             document.getElementById('nextBtn2').disabled = true;
-            document.getElementById('nextBtn3').disabled = true;
             hideHealthInfo();
             nextPage(1);
             updateSteps(1);
